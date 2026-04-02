@@ -1,0 +1,6 @@
+bin/
+.settings/
+.classpath
+.project
+target/
+src/main/resources/env.properties
