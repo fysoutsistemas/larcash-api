@@ -20,6 +20,6 @@ public class AppConfig {
 	@Bean
     public Hibernate5JakartaModule jsonHibernate5Module() {
         return new Hibernate5JakartaModule();
-    }	
-	
+    }
+
 }

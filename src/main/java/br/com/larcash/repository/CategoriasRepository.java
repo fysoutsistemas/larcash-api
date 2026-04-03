@@ -10,7 +10,7 @@ import br.com.larcash.entity.Categoria;
 import br.com.larcash.enums.Status;
 
 @Repository
-public interface CategoriasRepository extends JpaRepository<Categoria, Integer>{
+public interface CategoriasRepository extends JpaRepository<Categoria, Integer> {
 	
 	@Query(value = 
 			"SELECT c "
