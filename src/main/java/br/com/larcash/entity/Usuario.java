@@ -24,7 +24,7 @@ public class Usuario {
 	private String login;
 	
 	@NotBlank(message = "A senha é obrigatória")
-	@Size(max = 30, message = "A senha não deve conter mais de 30 caracteres")
+	@Size(max = 150, message = "A senha não deve conter mais de 150 caracteres")
 	@Column(name = "senha")
 	private String senha;
 	

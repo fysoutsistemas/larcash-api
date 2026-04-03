@@ -48,6 +48,10 @@ public class AuthService {
 		
 		String tokenGerado = Base64.getEncoder().encodeToString(baseDoToken.getBytes());
 		
+		usuarioEncontrado.setUltimoToken(tokenGerado);
+		
+		this.repository.save(usuarioEncontrado);
+		
 		return tokenGerado;
 
 	}
