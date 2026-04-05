@@ -105,7 +105,7 @@ public class LanctoController {
 		
 		PainelFinanceiro painel = service.buscarPainelPor(loginDoToken, ano, mes);
 		
-		return ResponseEntity.ok(converter.toJsonMap(painel));
+		return ResponseEntity.ok(converter.toJsonMap(painel, "usuario"));
 		
 	}
 	
