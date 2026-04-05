@@ -12,12 +12,14 @@ public interface UsuariosRepository extends JpaRepository<Usuario, String> {
 	@Query(value = 
 			"SELECT u "
 			+ "FROM Usuario u "
+			+ "JOIN FETCH u.familia "
 			+ "WHERE u.ultimoToken = :token")
 	public Usuario buscarPorToken(String token);
 	
 	@Query(value = 
-			"SELECT u "
+			"SELECT u "			
 			+ "FROM Usuario u "
+			+ "JOIN FETCH u.familia "					
 			+ "WHERE u.login = :login")	
 	public Usuario buscarPorLogin(String login);
 

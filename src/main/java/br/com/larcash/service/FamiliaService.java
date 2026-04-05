@@ -5,28 +5,29 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import br.com.larcash.entity.Usuario;
+import br.com.larcash.entity.Familia;
 import br.com.larcash.exception.RegistroNaoEncontradoException;
-import br.com.larcash.repository.UsuariosRepository;
+import br.com.larcash.repository.FamiliasRepository;
 import jakarta.validation.constraints.NotBlank;
 
 @Service
-public class UsuarioService {
+public class FamiliaService {
 	
 	@Autowired
-	private UsuariosRepository repository;	
-	
-	public Usuario buscarPorLogin(
+	private FamiliasRepository repository;
+
+	public Familia buscarPorLogin(
 			@NotBlank(message = "O login é obrigatório")
 			String login) {
 		
-		Usuario usuarioEncontrado = repository.buscarPorLogin(login); 
+		Familia familiaEncontrada = repository.buscarPorLogin(login);
 		
-		Optional.ofNullable(usuarioEncontrado)
+		Optional.ofNullable(familiaEncontrada)
 			.orElseThrow(() -> new RegistroNaoEncontradoException(
-        			"Não existe usuário vinculado ao login '" + login + "'"));
+					"Não existe família vinculada ao login informado"));
 		
-		return usuarioEncontrado;
+		return familiaEncontrada;
+		
 	}
-
+	
 }

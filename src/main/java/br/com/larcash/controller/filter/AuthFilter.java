@@ -30,7 +30,8 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class AuthFilter extends OncePerRequestFilter{
 
-	private final String ENDPOINT_LOGIN = "/auth";
+	private final String ENDPOINT_LOGIN = "/auth",
+			             ENDPOINT_STATUS_API = "/actuator";
 	
 	@Autowired
 	private UsuarioService usuarioService;
@@ -49,7 +50,7 @@ public class AuthFilter extends OncePerRequestFilter{
 			
 			String pathDoEndpoint = requestCache.getRequestURI();
 			
-			if (!ENDPOINT_LOGIN.equals(pathDoEndpoint)) {
+			if (!ENDPOINT_LOGIN.equals(pathDoEndpoint) && !pathDoEndpoint.startsWith(ENDPOINT_STATUS_API)) {
 				
 				String authHeader = requestCache.getHeader("Authorization");
 				
@@ -92,35 +93,38 @@ public class AuthFilter extends OncePerRequestFilter{
 			JSONObject errorBody = errorConverter.criarJsonDeErro(
 					ErroDaApi.ACESSO_NAO_PERMITIDO, ae.getMessage());
 			
-			this.retornarErroCom(response, errorBody);
+			this.retornarErroCom(HttpStatus.UNAUTHORIZED, response, errorBody);
 			
 		}catch (RegistroNaoEncontradoException ex) { 
 			
 			JSONObject errorBody = errorConverter.criarJsonDeErro(
 					ErroDaApi.ACESSO_NAO_PERMITIDO, "Token inválido");
 			
-			this.retornarErroCom(response, errorBody);
+			this.retornarErroCom(HttpStatus.UNAUTHORIZED, response, errorBody);
 			
 		}catch (ConverterException ce) {
 			
 			JSONObject errorBody = errorConverter.criarJsonDeErro(
 					ErroDaApi.BODY_INVALIDO, ce.getMessage());
 			
-			this.retornarErroCom(response, errorBody);
+			this.retornarErroCom(HttpStatus.BAD_REQUEST, response, errorBody);
 					
 		}catch (IllegalArgumentException iae) {
 			
 			JSONObject errorBody = errorConverter.criarJsonDeErro(
 					ErroDaApi.TOKEN_INVALIDO, iae.getMessage());
 			
-			this.retornarErroCom(response, errorBody);
+			this.retornarErroCom(HttpStatus.UNAUTHORIZED, response, errorBody);
+
 		}
 
 	}
 	
-	private void retornarErroCom(HttpServletResponse response, JSONObject errorBody) {
+	private void retornarErroCom(HttpStatus httpStatus, 
+			HttpServletResponse response, JSONObject errorBody) {
+		
 		try {		
-			response.setStatus(HttpStatus.BAD_REQUEST.value());
+			response.setStatus(httpStatus.value());
 			response.setCharacterEncoding("UTF-8");
 			response.setContentType("application/json;charset=UTF-8");
 			response.getOutputStream().write(errorBody.toString().getBytes(StandardCharsets.UTF_8));
