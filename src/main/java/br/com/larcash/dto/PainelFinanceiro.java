@@ -4,15 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.com.larcash.entity.Lancamento;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class PainelFinanceiro {
-	
-	@NotBlank(message = "O login é obrigatório")
-	private String login;
 	
 	@NotNull(message = "O ano é obrigatório")
 	private Integer ano;
@@ -26,10 +22,9 @@ public class PainelFinanceiro {
 	@NotNull(message = "Os lançamentos são obrigatórios")
 	private List<Lancamento> lancamentos;
 	
-	public PainelFinanceiro(Integer ano, Integer mes, String login) {
+	public PainelFinanceiro(Integer ano, Integer mes) {
 		this.ano = ano;
-		this.mes = mes;
-		this.login = login;
+		this.mes = mes;		
 		this.resumoGeral = new ResumoGeral();
 		this.lancamentos = new ArrayList<>();
 	}

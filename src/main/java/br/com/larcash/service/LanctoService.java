@@ -155,7 +155,7 @@ public class LanctoService {
 		resumoGeral.setTotalOrcado(orcamentoEncontrado.getLimite());
 		resumoGeral.setResumosPorCategoria(resumosPorCategoria);
 		
-		PainelFinanceiro painel = new PainelFinanceiro(ano, mes, login);
+		PainelFinanceiro painel = new PainelFinanceiro(ano, mes);
 		painel.setResumoGeral(resumoGeral);
 		painel.setLancamentos(lancamentos);
 		
