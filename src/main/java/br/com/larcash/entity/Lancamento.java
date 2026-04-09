@@ -1,7 +1,7 @@
 package br.com.larcash.entity;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -43,7 +43,7 @@ public class Lancamento {
 	
 	@NotNull(message = "A data é obrigatória")
 	@Column(name = "dt_gasto")
-	private LocalDateTime data;
+	private LocalDate data;
 	
 	@NotNull(message = "O valor é obrigatório")
 	@Positive(message = "O valor deve ser positivo")
