@@ -8,15 +8,13 @@ import br.com.larcash.entity.Orcamento;
 
 @Repository
 public interface OrcamentosRepository extends JpaRepository<Orcamento, Integer>{
-
+	
 	@Query(value = 
 			"SELECT o "
-			+ "FROM Orcamento o, "
-			+ "     Usuario u "
-			+ "WHERE o.familia = u.familia "
-			+ "AND o.ano = :ano "
-			+ "AND o.mes = :mes "
-			+ "AND u.login = :login ")
-	public Orcamento buscarPor(Integer ano, Integer mes, String login);
+			+ "FROM Orcamento o "					
+			+ "WHERE o.id = (SELECT Max(oaux.id) "
+			+ "              FROM Orcamento oaux "
+			+ "              WHERE oaux.familia.id = :idDaFamilia) ")
+	public Orcamento buscarUltimoPor(Integer idDaFamilia);
 	
 }

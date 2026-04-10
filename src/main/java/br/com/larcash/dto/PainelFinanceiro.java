@@ -10,21 +10,13 @@ import lombok.Data;
 @Data
 public class PainelFinanceiro {
 	
-	@NotNull(message = "O ano é obrigatório")
-	private Integer ano;
-	
-	@NotNull(message = "O mês é obrigatório")
-	private Integer mes;
-	
 	@NotNull(message = "O resumo geral é obrigatório")
 	private ResumoGeral resumoGeral;
 	
 	@NotNull(message = "Os lançamentos são obrigatórios")
 	private List<Lancamento> lancamentos;
 	
-	public PainelFinanceiro(Integer ano, Integer mes) {
-		this.ano = ano;
-		this.mes = mes;		
+	public PainelFinanceiro() {
 		this.resumoGeral = new ResumoGeral();
 		this.lancamentos = new ArrayList<>();
 	}

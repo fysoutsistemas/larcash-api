@@ -9,8 +9,6 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.common.base.Preconditions;
-
 import br.com.larcash.dto.PainelFinanceiro;
 import br.com.larcash.dto.ResumoGeral;
 import br.com.larcash.dto.ResumoPorCategoria;
@@ -23,8 +21,6 @@ import br.com.larcash.repository.LanctosRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -75,34 +71,25 @@ public class LanctoService {
 			@NotNull(message = "O id é obrigatório")
 			@Positive(message = "O id deve ser positivo")
 			Integer id) {
+						
+		Usuario usuarioEncontrado = usuarioService.buscarPorLogin(login);
 		
-		Lancamento lanctoDaRemocao = buscarPor(login, id);
+		Lancamento lanctoDaRemocao = repository.buscarPor(
+				usuarioEncontrado.getIdDaFamilia(), id);
 
-		this.repository.removerPor(login, id);
+		this.repository.removerPor(usuarioEncontrado.getIdDaFamilia(), id);
 
 		return lanctoDaRemocao;
 
 	}
 	
-	public PainelFinanceiro buscarPainelPor(
+	public PainelFinanceiro buscarUltimoPainelPor(
 			@NotBlank(message = "O login é obrigatório")
-			String login, 
-			@NotNull(message = "O ano é obrigatório")
-			@Positive(message = "O ano deve ser positivo")
-			Integer ano, 
-			@NotNull(message = "O mês é obrigatório")
-			@Min(value = 1, message = "O mês deve estar entre 1 e 12")
-			@Max(value = 12, message = "O mês deve estar entre 1 e 12")
-			Integer mes) {
+			String login) {
 		
-		Usuario usuarioEncontrado = usuarioService.buscarPorLogin(login);
+		Orcamento orcamentoEncontrado = orcamentoService.buscarUltimoPor(login);
 		
-		Preconditions.checkArgument(usuarioEncontrado != null, "O login não existe");
-		
-		Orcamento orcamentoEncontrado = orcamentoService.buscarPor(login, ano, mes);
-		
-		List<Lancamento> lancamentos = repository.listarPor(ano, mes, 
-				usuarioEncontrado.getIdDaFamilia());			
+		List<Lancamento> lancamentos = repository.listarPor(orcamentoEncontrado.getId());			
 		
 		List<Categoria> categorias = extractCategoriasFrom(lancamentos);
 		
@@ -155,7 +142,7 @@ public class LanctoService {
 		resumoGeral.setTotalOrcado(orcamentoEncontrado.getLimite());
 		resumoGeral.setResumosPorCategoria(resumosPorCategoria);
 		
-		PainelFinanceiro painel = new PainelFinanceiro(ano, mes);
+		PainelFinanceiro painel = new PainelFinanceiro();
 		painel.setResumoGeral(resumoGeral);
 		painel.setLancamentos(lancamentos);
 		

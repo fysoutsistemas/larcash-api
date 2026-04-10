@@ -64,6 +64,11 @@ public class Lancamento {
 	@JoinColumn(name = "id_familia")
 	@NotNull(message = "A família é obrigatória")
 	private Familia familia;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "id_orcamento")
+	@NotNull(message = "O orçamento é obrigatório")
+	private Orcamento orcamento;
 
 	@JsonIgnore
 	@Transient

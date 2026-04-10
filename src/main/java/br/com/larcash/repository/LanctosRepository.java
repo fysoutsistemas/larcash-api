@@ -16,11 +16,9 @@ public interface LanctosRepository extends JpaRepository<Lancamento, Integer>{
 			"SELECT l "
 			+ "FROM Lancamento l "
 			+ "JOIN FETCH l.categoria "
-			+ "WHERE l.familia.id = :idDaFamilia "
-			+ "AND YEAR(l.data) = :ano "
-			+ "AND MONTH(l.data) = :mes "
-			+ "ORDER BY l.data DESC ")
-	public List<Lancamento> listarPor(Integer ano, Integer mes, Integer idDaFamilia);
+			+ "WHERE l.orcamento.id = :idDoOrcamento "			
+			+ "ORDER BY l.id DESC ")
+	public List<Lancamento> listarPor(Integer idDoOrcamento);
 	
 	@Query(value = 
 			"SELECT l "
@@ -28,15 +26,23 @@ public interface LanctosRepository extends JpaRepository<Lancamento, Integer>{
 			+ "JOIN FETCH l.categoria "
 			+ "JOIN FETCH l.familia "
 			+ "WHERE l.usuario.login = :login "
-			+ "AND l.id = :id "			
-			+ "ORDER BY l.data DESC ")
+			+ "AND l.id = :id ")
 	public Lancamento buscarPor(Integer id, String login);
+	
+	@Query(value = 
+			"SELECT l "
+			+ "FROM Lancamento l "
+			+ "JOIN FETCH l.categoria "
+			+ "JOIN FETCH l.familia f "
+			+ "WHERE f.id = :idDaFamilia "
+			+ "AND l.id = :idDoLancto ")
+	public Lancamento buscarPor(Integer idDaFamilia, Integer idDoLancto);
 	
 	@Modifying
 	@Query(value = 
 			"DELETE FROM Lancamento l "
-			+ "WHERE l.usuario.login = :login "
-			+ "AND l.id = :id ")
-	public void removerPor(String login, Integer id);
+			+ "WHERE l.familia.id = :idDaFamilia "
+			+ "AND l.id = :idDoLancto ")
+	public void removerPor(Integer idDaFamilia, Integer idDoLancto);
 	
 }

@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.larcash.converter.MapConverter;
 import br.com.larcash.dto.PainelFinanceiro;
 import br.com.larcash.entity.Lancamento;
+import br.com.larcash.entity.Orcamento;
 import br.com.larcash.entity.Usuario;
 import br.com.larcash.service.LanctoService;
+import br.com.larcash.service.OrcamentoService;
 import br.com.larcash.service.UsuarioService;
 import br.com.larcash.util.TokenUtil;
 import jakarta.transaction.Transactional;
@@ -31,6 +33,9 @@ public class LanctoController {
 	
 	@Autowired
 	private UsuarioService usuarioService;
+	
+	@Autowired
+	private OrcamentoService orcamentoService;
 	
 	@Autowired
 	private MapConverter converter;
@@ -47,12 +52,16 @@ public class LanctoController {
 			Lancamento novoLancto){
 		
 		String loginDoToken = tokenUtil.extractLoginDo(authHeader);
-		
+					
 		Usuario usuario = usuarioService.buscarPorLogin(loginDoToken);
+		
+		Orcamento orcamento = orcamentoService.buscarUltimoPor(loginDoToken);
 		
 		novoLancto.setUsuario(usuario);
 		
 		novoLancto.setFamilia(usuario.getFamilia());
+		
+		novoLancto.setOrcamento(orcamento);
 		
 		Lancamento lanctoSalvo = service.inserir(novoLancto);
 		
@@ -92,18 +101,14 @@ public class LanctoController {
 		
 	}
 	
-	@GetMapping("/painel/ano/{ano}/mes/{mes}")
-	public ResponseEntity<?> buscarPainelPor(
+	@GetMapping("/painel")
+	public ResponseEntity<?> buscarUltimoPainelPor(
 			@RequestHeader("Authorization") 
-			String authHeader,
-			@PathVariable("ano")
-			Integer ano, 
-			@PathVariable("mes")
-			Integer mes){
+			String authHeader){
 		
 		String loginDoToken = tokenUtil.extractLoginDo(authHeader);
 		
-		PainelFinanceiro painel = service.buscarPainelPor(loginDoToken, ano, mes);
+		PainelFinanceiro painel = service.buscarUltimoPainelPor(loginDoToken);
 		
 		return ResponseEntity.ok(converter.toJsonMap(painel, "usuario"));
 		
