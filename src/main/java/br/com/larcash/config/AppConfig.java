@@ -42,22 +42,6 @@ public class AppConfig {
                         .maxAge(3600);
             }
         };
-    }
-	
-	@Configuration
-	public class CorsConfig {
-	    @Bean
-	    public CorsConfigurationSource corsConfigurationSource() {
-	    	CorsConfiguration corsConfiguration = new CorsConfiguration();
-		    corsConfiguration.applyPermitDefaultValues(); 
-		    corsConfiguration.setAllowedHeaders(Arrays.asList("*"));
-		    corsConfiguration.setAllowedMethods(Arrays.asList("*"));
-		    corsConfiguration.setAllowedOrigins(Arrays.asList("*"));
-		    corsConfiguration.setExposedHeaders(Arrays.asList("*"));
-		    UrlBasedCorsConfigurationSource ccs = new UrlBasedCorsConfigurationSource();
-		    ccs.registerCorsConfiguration("/**", corsConfiguration);
-		    return ccs;
-	    }
-	}
+    }	
 
 }
