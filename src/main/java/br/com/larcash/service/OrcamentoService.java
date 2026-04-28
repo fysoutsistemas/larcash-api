@@ -14,7 +14,6 @@ import com.google.common.base.Preconditions;
 import br.com.larcash.dto.ProgressoDoOrcamento;
 import br.com.larcash.entity.Orcamento;
 import br.com.larcash.entity.Usuario;
-import br.com.larcash.enums.Status;
 import br.com.larcash.exception.RegistroNaoEncontradoException;
 import br.com.larcash.repository.OrcamentosRepository;
 import jakarta.validation.Valid;
@@ -50,8 +49,6 @@ public class OrcamentoService {
 		this.familiaService.buscarPor(novoOrcamento.getIdDaFamilia());
 		
 		this.repository.inativarTodosPor(novoOrcamento.getIdDaFamilia());
-		
-		novoOrcamento.setStatus(Status.A);
 		
 		Orcamento orcamentoSalvo = repository.save(novoOrcamento);
 

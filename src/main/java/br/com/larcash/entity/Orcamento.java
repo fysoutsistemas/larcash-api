@@ -51,6 +51,10 @@ public class Orcamento {
 	@Column(name = "status")
 	private Status status;
 	
+	public Orcamento() {
+		this.status = Status.A;
+	}
+	
 	@JsonIgnore
 	@Transient
 	public boolean isNovo() {
