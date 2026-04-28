@@ -61,6 +61,11 @@ public class Usuario {
 	@Column(name = "ultimo_token")
 	private String ultimoToken;
 	
+	public Usuario() {
+		this.flAlteraOrcamento = Confirmacao.N;
+		this.flChefeDeFamilia = Confirmacao.N;
+	}
+
 	@JsonIgnore
 	@Transient	
 	public Integer getIdDaFamilia() {

@@ -1,5 +1,6 @@
 package br.com.larcash.repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -37,6 +38,12 @@ public interface LanctosRepository extends JpaRepository<Lancamento, Integer>{
 			+ "WHERE f.id = :idDaFamilia "
 			+ "AND l.id = :idDoLancto ")
 	public Lancamento buscarPor(Integer idDaFamilia, Integer idDoLancto);
+
+	@Query(value = 
+			"SELECT COALESCE(SUM(l.valor), 0) "
+			+ "FROM Lancamento l "
+			+ "WHERE l.orcamento.id = :idDoOrcamento ")
+	public BigDecimal somarTotalGastoPor(Integer idDoOrcamento);
 	
 	@Modifying
 	@Query(value = 

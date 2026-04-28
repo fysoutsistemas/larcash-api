@@ -16,5 +16,11 @@ public interface FamiliasRepository extends JpaRepository<Familia, Integer> {
 			+ "WHERE u.familia = f "
 			+ "AND u.login = :login ")
 	public Familia buscarPorLogin(String login);
+	
+	@Query(value = 
+			"SELECT f "
+			+ "FROM Familia f "
+			+ "WHERE f.id = :id ")
+	public Familia buscarPor(Integer id);
 
 }

@@ -31,7 +31,8 @@ import jakarta.servlet.http.HttpServletResponse;
 public class AuthFilter extends OncePerRequestFilter{
 
 	private final String ENDPOINT_LOGIN = "/auth",
-			             ENDPOINT_STATUS_API = "/actuator";
+			             ENDPOINT_STATUS_API = "/actuator",
+			             ENDPOINT_REGISTRO_CONTAS = "/contas-usuarios/registrar";
 	
 	@Autowired
 	private UsuarioService usuarioService;
@@ -50,7 +51,8 @@ public class AuthFilter extends OncePerRequestFilter{
 			
 			String pathDoEndpoint = requestCache.getRequestURI();
 			
-			if (!ENDPOINT_LOGIN.equals(pathDoEndpoint) && !pathDoEndpoint.startsWith(ENDPOINT_STATUS_API)) {
+			if (!ENDPOINT_REGISTRO_CONTAS.equals(pathDoEndpoint) && !ENDPOINT_LOGIN.equals(pathDoEndpoint) 
+					&& !pathDoEndpoint.startsWith(ENDPOINT_STATUS_API)) {
 				
 				String authHeader = requestCache.getHeader("Authorization");
 				

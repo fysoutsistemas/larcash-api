@@ -2,6 +2,8 @@ package br.com.larcash.entity;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import br.com.larcash.enums.Status;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,8 +16,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -34,7 +37,7 @@ public class Orcamento {
 	private Integer id;
 	
 	@NotNull(message = "O limite da categoria é obrigatória")
-	@PositiveOrZero(message = "O limite não pode ser negativo")
+	@Positive(message = "O limite não pode ser negativo")
 	@Column(name = "limite")
 	private BigDecimal limite;
 	
@@ -47,5 +50,23 @@ public class Orcamento {
 	@NotNull(message = "O status é obrigatório")
 	@Column(name = "status")
 	private Status status;
+	
+	@JsonIgnore
+	@Transient
+	public boolean isNovo() {
+		return getId() == null || getId() <= 0;
+	}
+	
+	@JsonIgnore
+	@Transient
+	public Integer getIdDaFamilia() {
+		return getFamilia().getId();
+	}
+	
+	@JsonIgnore
+	@Transient
+	public boolean isAtivo() {
+		return getStatus() == Status.A;
+	}
 	
 }

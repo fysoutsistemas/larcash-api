@@ -33,10 +33,10 @@ public class LanctoService {
 
 	@Autowired
 	private LanctosRepository repository;
-	
+		
 	@Autowired
 	private UsuarioService usuarioService;
-	
+		
 	@Autowired
 	private OrcamentoService orcamentoService;
 	
@@ -81,6 +81,13 @@ public class LanctoService {
 
 		return lanctoDaRemocao;
 
+	}
+	
+	public BigDecimal somarTotalGastoPor(
+			@NotNull(message = "O id do orçamento é obrigatório")
+			@Positive(message = "O id do orçamento deve ser positivo")
+			Integer idDoOrcamento) {
+		return repository.somarTotalGastoPor(idDoOrcamento);
 	}
 	
 	public PainelFinanceiro buscarUltimoPainelPor(
