@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import br.com.larcash.enums.Confirmacao;
 import br.com.larcash.enums.Status;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -51,8 +52,14 @@ public class Orcamento {
 	@Column(name = "status")
 	private Status status;
 	
+	@Enumerated(value = EnumType.STRING)
+	@NotNull(message = "O indicador de configuração de categorias é obrigatório")
+	@Column(name = "fl_categs_config")
+	private Confirmacao flCategoriasConfiguradas;
+	
 	public Orcamento() {
 		this.status = Status.A;
+		this.flCategoriasConfiguradas = Confirmacao.N;
 	}
 	
 	@JsonIgnore
@@ -71,6 +78,12 @@ public class Orcamento {
 	@Transient
 	public boolean isAtivo() {
 		return getStatus() == Status.A;
+	}
+	
+	@JsonIgnore
+	@Transient
+	public boolean isCategoriasConfiguradas() {
+		return getFlCategoriasConfiguradas() == Confirmacao.S;
 	}
 	
 }

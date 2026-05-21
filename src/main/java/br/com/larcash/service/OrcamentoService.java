@@ -33,10 +33,14 @@ public class OrcamentoService {
 	
 	@Lazy
 	@Autowired
+	private CategoriaService categoriaService;
+	
+	@Lazy
+	@Autowired
 	private LanctoService lanctoService;
 	
 	@Autowired
-	private OrcamentosRepository repository;
+	private OrcamentosRepository repository;	
 	
 	public Orcamento inserir(
 			@Valid
@@ -51,6 +55,8 @@ public class OrcamentoService {
 		this.repository.inativarTodosPor(novoOrcamento.getIdDaFamilia());
 		
 		Orcamento orcamentoSalvo = repository.save(novoOrcamento);
+		
+		this.categoriaService.vincularCategoriasNo(orcamentoSalvo);
 
 		return buscarPor(orcamentoSalvo.getId());
 
@@ -59,7 +65,7 @@ public class OrcamentoService {
 	public Orcamento alterarLimitePor(
 			@NotBlank(message = "O login é obrigatório")
 			String login, 
-			@NotNull(message = "O limite é obrigatório")
+			@NotNull(message = "O novo limite é obrigatório")
 			@Positive(message = "O novo limite deve ser positivo")
 			BigDecimal limite) {
 
@@ -87,8 +93,8 @@ public class OrcamentoService {
 		
 		BigDecimal totalRestante = orcamentoEncontrado.getLimite().subtract(totalGasto);
 
-		return new ProgressoDoOrcamento(orcamentoEncontrado.getLimite(), 
-				totalGasto, percentualGasto, totalRestante);
+		return new ProgressoDoOrcamento(orcamentoEncontrado.getLimite(), totalGasto, 
+				percentualGasto, totalRestante, orcamentoEncontrado.getFlCategoriasConfiguradas());
 
 	}
 	
@@ -109,7 +115,19 @@ public class OrcamentoService {
 
 	}
 	
-	public Orcamento buscarPor(Integer id) {
+	public Orcamento buscarAtivoPor(
+			@NotNull(message = "O id do orçamento é obrigatório")
+			@Positive(message = "O id da orçamento deve ser positivo")
+			Integer id) {
+		Orcamento orcamentoEncontrado = buscarPor(id);
+		Preconditions.checkArgument(orcamentoEncontrado.isAtivo(), "O orçamento está inativado");
+		return orcamentoEncontrado;
+	}
+	
+	public Orcamento buscarPor(
+			@NotNull(message = "O id do orçamento é obrigatório")
+			@Positive(message = "O id da orçamento deve ser positivo")
+			Integer id) {
 
 		Orcamento orcamentoEncontrado = repository.buscarPor(id);
 
@@ -120,5 +138,12 @@ public class OrcamentoService {
 		return orcamentoEncontrado;
 
 	}
-	
+
+	public void marcarCategsComoConfiguradasPor(
+			@NotNull(message = "O id do orçamento é obrigatório")
+			@Positive(message = "O id da orçamento deve ser positivo")
+			Integer idDoOrcamento) {
+		this.repository.marcarCategsComoConfiguradasPor(idDoOrcamento);
+	}
+
 }

@@ -17,6 +17,7 @@ public interface LanctosRepository extends JpaRepository<Lancamento, Integer>{
 			"SELECT l "
 			+ "FROM Lancamento l "
 			+ "JOIN FETCH l.categoria "
+			+ "JOIN FETCH l.familia "
 			+ "WHERE l.orcamento.id = :idDoOrcamento "			
 			+ "ORDER BY l.id DESC ")
 	public List<Lancamento> listarPor(Integer idDoOrcamento);

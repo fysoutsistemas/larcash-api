@@ -75,5 +75,17 @@ public class Lancamento {
 	public String getLogin() {
 		return getUsuario().getLogin();
 	}
+	
+	@JsonIgnore
+	@Transient
+	public Integer getIdDaFamilia() {
+		return getFamilia().getId();
+	}
+	
+	@JsonIgnore
+	@Transient
+	public Integer getIdDaCategoria(){
+		return getCategoria().getId();
+	}
 
 }

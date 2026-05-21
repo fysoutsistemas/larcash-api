@@ -32,4 +32,11 @@ public interface OrcamentosRepository extends JpaRepository<Orcamento, Integer>{
 			+ "WHERE o.familia.id = :idDaFamilia ")
 	public void inativarTodosPor(Integer idDaFamilia);
 	
+	@Modifying
+	@Query(value = 
+			"UPDATE Orcamento o "
+			+ "SET o.flCategoriasConfiguradas = br.com.larcash.enums.Confirmacao.S "
+			+ "WHERE o.id = :idDoOrcamento ")
+	public void marcarCategsComoConfiguradasPor(Integer idDoOrcamento);
+	
 }

@@ -27,6 +27,9 @@ public class ContaDeUsuarioService {
 		
 	@Autowired
 	private OrcamentoService orcamentoService;
+		
+	@Autowired
+	private CategoriaService categoriaService;
 	
 	@Transactional
 	public void criar(
@@ -43,7 +46,9 @@ public class ContaDeUsuarioService {
 		novoOrcamento.setLimite(novaConta.getOrcamentoMensal());
 		novoOrcamento.setFamilia(familiaSalva);
 
-		this.orcamentoService.inserir(novoOrcamento);
+		Orcamento orcamentoSalvo = orcamentoService.inserir(novoOrcamento);
+		
+		this.categoriaService.vincularCategoriasNo(orcamentoSalvo);
 
 		Usuario novoUsuario = new Usuario();
 		novoUsuario.setLogin(novaConta.getLogin());
@@ -51,7 +56,7 @@ public class ContaDeUsuarioService {
 		novoUsuario.setNomeCompleto(novaConta.getNomeCompleto());
 		novoUsuario.setFamilia(familiaSalva);
 
-		this.usuarioService.inserir(novoUsuario);
+		this.usuarioService.inserir(novoUsuario);			
 
 	}
 	
@@ -78,11 +83,14 @@ public class ContaDeUsuarioService {
 		
 		Usuario usuarioEncontrado = usuarioService.buscarPorLogin(login);
 		
+		Orcamento orcamentoEncontrado = orcamentoService.buscarUltimoPor(login);
+		
 		ResumoDaContaDeUsuario resumo = new ResumoDaContaDeUsuario();
 		
 		resumo.setLogin(usuarioEncontrado.getLogin());
 		resumo.setNomeCompleto(usuarioEncontrado.getNomeCompleto());
 		resumo.setNomeDaFamilia(usuarioEncontrado.getFamilia().getNome());
+		resumo.setFlCategoriasConfiguradas(orcamentoEncontrado.getFlCategoriasConfiguradas());
 		
 		return resumo;
 

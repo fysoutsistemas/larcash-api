@@ -2,6 +2,7 @@ package br.com.larcash.dto;
 
 import java.math.BigDecimal;
 
+import br.com.larcash.enums.Confirmacao;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,6 +21,9 @@ public class ProgressoDoOrcamento {
 	private Integer percentualGasto;
 	
 	@NotNull(message = "O total restante é obrigatório")
-	private BigDecimal totalRestante;	
+	private BigDecimal totalRestante;
+	
+	@NotNull(message = "O indicador de configuração de categorias é obrigatório")
+	private Confirmacao flCategoriasConfiguradas;
 	
 }

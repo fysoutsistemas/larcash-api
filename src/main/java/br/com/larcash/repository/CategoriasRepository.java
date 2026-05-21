@@ -18,5 +18,11 @@ public interface CategoriasRepository extends JpaRepository<Categoria, Integer> 
 			+ "WHERE c.status = :status "
 			+ "ORDER BY c.id ")
 	public List<Categoria> listarPor(Status status);
+	
+	@Query(value = 
+			"SELECT c "
+			+ "FROM Categoria c "
+			+ "WHERE c.id = :id ")
+	public Categoria buscarPor(Integer id);
 
 }

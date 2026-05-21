@@ -40,6 +40,9 @@ public class LanctoService {
 	@Autowired
 	private OrcamentoService orcamentoService;
 	
+	@Autowired
+	private CategoriaService categoriaService;
+	
 	public Lancamento inserir(
 			@Valid
 			@NotNull(message = "O novo lancamento não pode ser nulo")
@@ -61,6 +64,11 @@ public class LanctoService {
 			.orElseThrow(() -> new RegistroNaoEncontradoException(
     			"Não existe lançamento vinculado ao id '" + id + "'"));
 		
+		BigDecimal limite = categoriaService.buscarLimitePor(lanctoEncontrado
+				.getIdDaFamilia(), lanctoEncontrado.getIdDaCategoria());
+		
+		lanctoEncontrado.getCategoria().setLimite(limite);
+		
 		return lanctoEncontrado;
 		
 	}
@@ -73,6 +81,12 @@ public class LanctoService {
 			Integer id) {
 						
 		Usuario usuarioEncontrado = usuarioService.buscarPorLogin(login);
+		
+		//Mantém a referencia do objeto encontrado no service porém removendo o mesmo
+		//do cache de segundo nível do JPA. Isso garante que caso exista um mapeamento
+		//de usuário em outra entidade, que esse objeto não seja injetado automaticamente
+		//pelo JPA.
+		this.em.detach(usuarioEncontrado);
 		
 		Lancamento lanctoDaRemocao = repository.buscarPor(
 				usuarioEncontrado.getIdDaFamilia(), id);
@@ -164,7 +178,16 @@ public class LanctoService {
 		for (Lancamento lancto : lancamentos) {
 			
 			if (!categorias.contains(lancto.getCategoria())) {
-				categorias.add(lancto.getCategoria());
+
+				Categoria categoria = lancto.getCategoria();
+
+				BigDecimal limite = categoriaService.buscarLimitePor(
+						lancto.getIdDaFamilia(), categoria.getId());
+				
+				categoria.setLimite(limite);
+
+				categorias.add(categoria);
+
 			}
 			
 		}

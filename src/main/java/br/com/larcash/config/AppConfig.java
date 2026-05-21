@@ -19,7 +19,9 @@ public class AppConfig {
 	
 	@Bean
     public Hibernate5JakartaModule jsonHibernate5Module() {
-        return new Hibernate5JakartaModule();
+		Hibernate5JakartaModule hibernate5Module = new Hibernate5JakartaModule();
+		hibernate5Module.disable(Hibernate5JakartaModule.Feature.USE_TRANSIENT_ANNOTATION);
+        return hibernate5Module;
     }
 	
 }
