@@ -20,7 +20,7 @@ public interface CategoriasDaOrcamentoRepository extends
 			+ "FROM CategoriaDoOrcamento co "
 			+ "JOIN FETCH co.categoria "
 			+ "WHERE co.orcamento.id = :idDoOrcamento "
-			+ "ORDER BY co.orcamento.id ")
+			+ "ORDER BY co.categoria.id ")
 	public List<CategoriaDoOrcamento> listarPor(Integer idDoOrcamento);
 	
 	@Query(value = 
