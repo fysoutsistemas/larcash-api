@@ -12,7 +12,7 @@ import br.com.larcash.entity.CategoriaDoOrcamento;
 import br.com.larcash.entity.composite.CategoriaDoOrcamentoId;
 
 @Repository
-public interface CategoriasDaOrcamentoRepository extends 
+public interface CategoriasDaOrctoRepository extends 
 		JpaRepository<CategoriaDoOrcamento, CategoriaDoOrcamentoId>{
 	
 	@Query(value = 

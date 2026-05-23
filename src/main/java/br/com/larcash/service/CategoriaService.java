@@ -18,7 +18,7 @@ import br.com.larcash.entity.Orcamento;
 import br.com.larcash.entity.composite.CategoriaDoOrcamentoId;
 import br.com.larcash.enums.Status;
 import br.com.larcash.exception.RegistroNaoEncontradoException;
-import br.com.larcash.repository.CategoriasDaOrcamentoRepository;
+import br.com.larcash.repository.CategoriasDaOrctoRepository;
 import br.com.larcash.repository.CategoriasRepository;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -32,7 +32,7 @@ public class CategoriaService {
 	private CategoriasRepository repository;
 	
 	@Autowired
-	private CategoriasDaOrcamentoRepository categsDaFamiliaRepository;	
+	private CategoriasDaOrctoRepository categsDaFamiliaRepository;	
 	
 	@Autowired
 	private OrcamentoService orcamentoService;

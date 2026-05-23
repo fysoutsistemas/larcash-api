@@ -72,4 +72,10 @@ public class Usuario {
 		return getFamilia().getId();
 	}
 	
+	@JsonIgnore
+	@Transient
+	public boolean isChefeDeFamilia() {
+		return getFlChefeDeFamilia() == Confirmacao.S;
+	}
+	
 }

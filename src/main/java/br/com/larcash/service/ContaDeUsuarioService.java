@@ -1,6 +1,7 @@
 package br.com.larcash.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -31,6 +32,12 @@ public class ContaDeUsuarioService {
 	@Autowired
 	private CategoriaService categoriaService;
 	
+	@Value("${validade-em-horas}")
+	private Integer validadeEmHoras;
+	
+	@Value("${url-view}")
+	private String urlDaView;
+	
 	@Transactional
 	public void criar(
 			@Valid
@@ -59,7 +66,7 @@ public class ContaDeUsuarioService {
 		this.usuarioService.inserir(novoUsuario);			
 
 	}
-	
+		
 	@Transactional
 	public ResumoDaContaDeUsuario atualizar(
 			@NotNull(message = "A conta editada não pode ser nulo")

@@ -32,7 +32,8 @@ public class AuthFilter extends OncePerRequestFilter{
 
 	private final String ENDPOINT_LOGIN = "/auth",
 			             ENDPOINT_STATUS_API = "/actuator",
-			             ENDPOINT_REGISTRO_CONTAS = "/contas-usuarios/registrar";
+			             ENDPOINT_REGISTRO_CONTAS = "/contas-usuarios/registrar",
+			             ENDPOINT_CONVITE = "/contas-usuarios/convidar";
 	
 	@Autowired
 	private UsuarioService usuarioService;
@@ -51,7 +52,9 @@ public class AuthFilter extends OncePerRequestFilter{
 			
 			String pathDoEndpoint = requestCache.getRequestURI();
 			
-			if (!ENDPOINT_REGISTRO_CONTAS.equals(pathDoEndpoint) && !ENDPOINT_LOGIN.equals(pathDoEndpoint) 
+			if (!ENDPOINT_REGISTRO_CONTAS.equals(pathDoEndpoint)
+					&& !ENDPOINT_CONVITE.equals(pathDoEndpoint)
+					&& !ENDPOINT_LOGIN.equals(pathDoEndpoint) 
 					&& !pathDoEndpoint.startsWith(ENDPOINT_STATUS_API)) {
 				
 				String authHeader = requestCache.getHeader("Authorization");
