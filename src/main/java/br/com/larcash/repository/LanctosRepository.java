@@ -18,6 +18,7 @@ public interface LanctosRepository extends JpaRepository<Lancamento, Integer>{
 			+ "FROM Lancamento l "
 			+ "JOIN FETCH l.categoria "
 			+ "JOIN FETCH l.familia "
+			+ "JOIN FETCH l.usuario "
 			+ "WHERE l.orcamento.id = :idDoOrcamento "			
 			+ "ORDER BY l.id DESC ")
 	public List<Lancamento> listarPor(Integer idDoOrcamento);
@@ -36,6 +37,7 @@ public interface LanctosRepository extends JpaRepository<Lancamento, Integer>{
 			+ "FROM Lancamento l "
 			+ "JOIN FETCH l.categoria "
 			+ "JOIN FETCH l.familia f "
+			+ "JOIN FETCH l.usuario "
 			+ "WHERE f.id = :idDaFamilia "
 			+ "AND l.id = :idDoLancto ")
 	public Lancamento buscarPor(Integer idDaFamilia, Integer idDoLancto);

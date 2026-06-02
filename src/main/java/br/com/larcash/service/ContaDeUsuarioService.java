@@ -11,6 +11,7 @@ import br.com.larcash.dto.ResumoDaContaDeUsuario;
 import br.com.larcash.entity.Familia;
 import br.com.larcash.entity.Orcamento;
 import br.com.larcash.entity.Usuario;
+import br.com.larcash.enums.Confirmacao;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -62,6 +63,8 @@ public class ContaDeUsuarioService {
 		novoUsuario.setSenha(novaConta.getSenha());
 		novoUsuario.setNomeCompleto(novaConta.getNomeCompleto());
 		novoUsuario.setFamilia(familiaSalva);
+		novoUsuario.setFlChefeDeFamilia(Confirmacao.S);
+		novoUsuario.setFlAlteraOrcamento(Confirmacao.S);
 
 		this.usuarioService.inserir(novoUsuario);			
 
@@ -98,6 +101,7 @@ public class ContaDeUsuarioService {
 		resumo.setNomeCompleto(usuarioEncontrado.getNomeCompleto());
 		resumo.setNomeDaFamilia(usuarioEncontrado.getFamilia().getNome());
 		resumo.setFlCategoriasConfiguradas(orcamentoEncontrado.getFlCategoriasConfiguradas());
+		resumo.setFlChefeDaFamilia(usuarioEncontrado.getFlChefeDeFamilia());
 		
 		return resumo;
 

@@ -20,4 +20,7 @@ public class ResumoDaContaDeUsuario {
 	@NotNull(message = "O indicador de configuração de categorias é obrigatório")
 	private Confirmacao flCategoriasConfiguradas;
 	
+	@NotNull(message = "O indicador de chefe de familia é obrigatório")
+	private Confirmacao flChefeDaFamilia;
+	
 }

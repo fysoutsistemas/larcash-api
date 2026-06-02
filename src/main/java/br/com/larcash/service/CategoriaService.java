@@ -65,7 +65,7 @@ public class CategoriaService {
 		return categsDaFamiliaRepository.buscarLimitePor(idDaFamilia, idDaCategoria);
 	}
 	
-	public Categoria atualizarLimitePor(
+	public Categoria atualizarLimitePor(			
 			@NotNull(message = "O id da categoria é obrigatório")
 			@Positive(message = "O id da categoria deve ser positivo")
 			Integer idDaCategoria,

@@ -12,7 +12,6 @@ import com.google.common.base.Strings;
 import com.google.common.hash.Hashing;
 
 import br.com.larcash.entity.Usuario;
-import br.com.larcash.enums.Confirmacao;
 import br.com.larcash.exception.RegistroNaoEncontradoException;
 import br.com.larcash.repository.UsuariosRepository;
 import jakarta.validation.Valid;
@@ -48,9 +47,7 @@ public class UsuarioService {
 		//impedindo assim ids inexistentes no objeto do usuário
 		this.familiaService.buscarPor(novoUsuario.getIdDaFamilia());
 		
-		novoUsuario.setSenha(senhaCifrada);
-		novoUsuario.setFlChefeDeFamilia(Confirmacao.S);
-		novoUsuario.setFlAlteraOrcamento(Confirmacao.S);
+		novoUsuario.setSenha(senhaCifrada);		
 
 		return repository.save(novoUsuario);
 

@@ -69,13 +69,16 @@ public class Lancamento {
 	@JoinColumn(name = "id_orcamento")
 	@NotNull(message = "O orçamento é obrigatório")
 	private Orcamento orcamento;
+	
+	@Transient
+	private String loginDoCriador;
 
 	@JsonIgnore
 	@Transient
 	public String getLogin() {
 		return getUsuario().getLogin();
 	}
-	
+
 	@JsonIgnore
 	@Transient
 	public Integer getIdDaFamilia() {

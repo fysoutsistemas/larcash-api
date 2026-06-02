@@ -33,7 +33,11 @@ public class AuthFilter extends OncePerRequestFilter{
 	private final String ENDPOINT_LOGIN = "/auth",
 			             ENDPOINT_STATUS_API = "/actuator",
 			             ENDPOINT_REGISTRO_CONTAS = "/contas-usuarios/registrar",
-			             ENDPOINT_CONVITE = "/contas-usuarios/convidar";
+			             ENDPOINT_CONVITE = "/contas-usuarios/convidar",
+			             ENDPOINT_CATEGORIA = "/categorias",
+			             ENDPOINT_ORCAMENTO = "/orcamentos",
+			             METODO_POST = "POST",
+			             METODO_PUT = "PUT";
 	
 	@Autowired
 	private UsuarioService usuarioService;
@@ -51,6 +55,8 @@ public class AuthFilter extends OncePerRequestFilter{
 			CustomHttpServletRequestWrapper requestCache = new CustomHttpServletRequestWrapper(request);
 			
 			String pathDoEndpoint = requestCache.getRequestURI();
+			
+			String metodo = requestCache.getMethod();
 			
 			if (!ENDPOINT_REGISTRO_CONTAS.equals(pathDoEndpoint)
 					&& !ENDPOINT_CONVITE.equals(pathDoEndpoint)
@@ -84,6 +90,17 @@ public class AuthFilter extends OncePerRequestFilter{
 				    
 				    Preconditions.checkArgument(validade.isAfter(LocalDateTime.now()), 
 				    		"Token fora do prazo de validade");
+				    
+				    if (pathDoEndpoint.startsWith(ENDPOINT_CATEGORIA)
+				    		|| pathDoEndpoint.startsWith(ENDPOINT_ORCAMENTO)) {
+
+				    	if (METODO_POST.equalsIgnoreCase(metodo) 
+				    			|| METODO_PUT.equalsIgnoreCase(metodo)) {
+				    		Preconditions.checkArgument(usuarioEncontrado.isChefeDeFamilia(), 
+				    				"O login não possui nível de acesso ao recurso de destino ");
+				    	}
+
+				    }
 
 				}else {
 					throw new AutorizacaoException("Token inexistente ou inválido");

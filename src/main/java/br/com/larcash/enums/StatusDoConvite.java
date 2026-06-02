@@ -3,7 +3,6 @@ package br.com.larcash.enums;
 public enum StatusDoConvite {
 
 	GERADO,
-	CANCELADO,
 	CONFIRMADO;
 	
 	public static StatusDoConvite toEnum(String value) {

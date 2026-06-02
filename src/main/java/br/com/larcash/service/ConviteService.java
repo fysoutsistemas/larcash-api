@@ -55,14 +55,14 @@ public class ConviteService {
 		Preconditions.checkArgument(usuarioEncontrado.isChefeDeFamilia(), 
 				"O convite só pode ser realizado por um chefe de família");
 		
-		this.repository.cancelarPor(usuarioEncontrado.getIdDaFamilia());
-		
 		//Cria uma validade de 8 horas
 		LocalDateTime validade = LocalDateTime.now().plusHours(validadeEmHoras);
 		
-		//<login>,<idDaFamilia>,<ValidadeInMillis>
-		String baseDoToken = usuarioEncontrado.getLogin() + ","
+		//<login>,<nomeCompleto>,<idDaFamilia>,<nomeDaFamilia>,<ValidadeInMillis>
+		String baseDoToken = usuarioEncontrado.getLogin() + "," 
+				+ usuarioEncontrado.getNomeCompleto() + ","
 				+ usuarioEncontrado.getIdDaFamilia() + ","
+				+ usuarioEncontrado.getFamilia().getNome() + ","
 				+ validade.atZone(ZoneId.systemDefault())
 						.toInstant().toEpochMilli();
 		
@@ -91,13 +91,13 @@ public class ConviteService {
 		
 		String tokenDoConvite = novoMembro.getTokenDoConvite();
 		
-		//[0]<login>,[1]<idDaFamilia>,[2]<ValidadeInMillis>
+		//[0]<login>,[1]<nomeCompleto>,[2]<idDaFamilia>,[3]<nomeDaFamilia>,[4]<ValidadeInMillis>
 		String dadosDoToken[] = new String(Base64.getDecoder()
 	    		.decode(tokenDoConvite.getBytes())).split(",");
 		
-		Preconditions.checkArgument(dadosDoToken.length == 3, "Token de convite inválido");
+		Preconditions.checkArgument(dadosDoToken.length == 5, "Token de convite inválido");
 		
-		Long validadeInMillis = Long.valueOf(dadosDoToken[2]);
+		Long validadeInMillis = Long.valueOf(dadosDoToken[4]);
 	    
 	    Instant instant = Instant.ofEpochMilli(validadeInMillis);
 	    
@@ -109,8 +109,8 @@ public class ConviteService {
 	    
 	    Convite conviteEncontrado = buscarPor(tokenDoConvite);
 	    
-	    Preconditions.checkArgument(!conviteEncontrado.isCancelado(), 
-	    		"O token do convite foi cancelado");
+	    Preconditions.checkArgument(!conviteEncontrado.isConfirmado(), 
+	    		"O token do convite já foi utilizado");
 
 	    Usuario novoUsuario = new Usuario();
 	    novoUsuario.setLogin(novoMembro.getLogin());

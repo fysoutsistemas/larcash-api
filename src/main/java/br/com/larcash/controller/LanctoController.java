@@ -97,7 +97,7 @@ public class LanctoController {
 		
 		Lancamento lanctoRemovido = service.removerPor(loginDoToken, id);
 		
-		return ResponseEntity.ok(converter.toJsonMap(lanctoRemovido));
+		return ResponseEntity.ok(converter.toJsonMap(lanctoRemovido, "usuario"));
 		
 	}
 	

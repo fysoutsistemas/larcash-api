@@ -74,8 +74,8 @@ public class Convite {
 	
 	@JsonIgnore
 	@Transient
-	public boolean isCancelado() {
-		return getStatus() == StatusDoConvite.CANCELADO;
+	public boolean isConfirmado() {
+		return getStatus() == StatusDoConvite.CONFIRMADO;
 	}
 
 }

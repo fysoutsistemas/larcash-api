@@ -9,6 +9,8 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.common.base.Preconditions;
+
 import br.com.larcash.dto.PainelFinanceiro;
 import br.com.larcash.dto.ResumoGeral;
 import br.com.larcash.dto.ResumoPorCategoria;
@@ -90,6 +92,9 @@ public class LanctoService {
 		
 		Lancamento lanctoDaRemocao = repository.buscarPor(
 				usuarioEncontrado.getIdDaFamilia(), id);
+		
+		Preconditions.checkArgument(lanctoDaRemocao.getLogin().equals(login), 
+				"O usuário não tem permissão para remover a despesa");
 
 		this.repository.removerPor(usuarioEncontrado.getIdDaFamilia(), id);
 
@@ -123,6 +128,8 @@ public class LanctoService {
 			ResumoPorCategoria resumoPorCategoria = new ResumoPorCategoria(categ);
 			
 			for (Lancamento lancto : lancamentos) {
+				
+				lancto.setLoginDoCriador(lancto.getLogin());
 				
 				if (lancto.getCategoria().equals(categ)) {
 					BigDecimal gastosSomados = lancto.getValor().add(resumoPorCategoria.getGastos());
