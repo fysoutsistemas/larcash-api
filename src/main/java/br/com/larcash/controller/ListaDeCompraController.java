@@ -1,0 +1,187 @@
+package br.com.larcash.controller;
+
+import java.net.URI;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import br.com.larcash.converter.MapConverter;
+import br.com.larcash.dto.ItemDoCarrinho;
+import br.com.larcash.dto.ListaDeCompraSalva;
+import br.com.larcash.dto.NovaListaDeCompra;
+import br.com.larcash.entity.ListaDeCompra;
+import br.com.larcash.enums.Confirmacao;
+import br.com.larcash.enums.StatusDaLista;
+import br.com.larcash.service.ListaDeCompraService;
+import br.com.larcash.util.TokenUtil;
+import jakarta.transaction.Transactional;
+
+@RestController
+@RequestMapping("/compras")
+public class ListaDeCompraController {
+	
+	@Autowired
+	private ListaDeCompraService service;
+	
+	@Autowired
+	private MapConverter converter;
+	
+	@Autowired
+	private TokenUtil tokenUtil;
+	
+	@PostMapping
+	@Transactional
+	public ResponseEntity<?> inserir(
+			@RequestHeader("Authorization") 
+			String authHeader,
+			@RequestBody
+			NovaListaDeCompra novaLista){
+
+		String loginDoToken = tokenUtil.extractLoginDo(authHeader);
+
+		ListaDeCompra listaSalva = service.inserir(novaLista, loginDoToken);
+
+		return ResponseEntity.created(URI.create("/listas-compras/id/" 
+				+ listaSalva.getId())).build();
+
+	}
+	
+	@PutMapping
+	@Transactional
+	public ResponseEntity<?> alterar(
+			@RequestHeader("Authorization") 
+			String authHeader,
+			@RequestBody
+			ListaDeCompraSalva listaSalva){
+		
+		String loginDoToken = tokenUtil.extractLoginDo(authHeader);
+		
+		ListaDeCompra listaAtualizada = service.alterar(listaSalva, loginDoToken);
+		
+		return ResponseEntity.ok(converter.toJsonMap(listaAtualizada, "usuario", "comprador"));
+		
+	}
+	
+	@GetMapping("/id/{id}")
+	public ResponseEntity<?> buscarPor(
+			@RequestHeader("Authorization") 
+			String authHeader,
+			@PathVariable("id")
+			Integer id){
+		
+		Integer idDaFamilia = tokenUtil.extractIdDaFamiliaDo(authHeader);
+		
+		ListaDeCompra listaEncontrada = service.buscarPor(idDaFamilia, id);
+		
+		return ResponseEntity.ok(converter.toJsonMap(listaEncontrada, "usuario", "comprador"));
+	}
+	
+	@GetMapping
+	public ResponseEntity<?> listarTodos(
+			@RequestHeader("Authorization") 
+			String authHeader){
+		
+		Integer idDaFamilia = tokenUtil.extractIdDaFamiliaDo(authHeader);
+		
+		List<ListaDeCompra> listas = service.listarPor(idDaFamilia);
+		
+		if (listas.isEmpty()) {
+			return ResponseEntity.noContent().build();
+		}
+		
+		return ResponseEntity.ok(converter.toJsonList(listas, "usuario", "comprador"));
+	}
+	
+	@PatchMapping("/{id}/ativa")
+	public ResponseEntity<?> ativar(
+			@RequestHeader("Authorization") 
+			String authHeader,
+			@PathVariable("id")
+			Integer id){
+		
+		String loginDoComprador = tokenUtil.extractLoginDo(authHeader);
+		
+		ListaDeCompra listaAtualizada = service.atualizarStatusPor(loginDoComprador, id, Confirmacao.S);
+		
+		return ResponseEntity.ok(converter.toJsonMap(listaAtualizada, "usuario", "comprador"));
+		
+	}
+	
+	@PatchMapping("/{id}/inativa")
+	public ResponseEntity<?> inativar(
+			@RequestHeader("Authorization") 
+			String authHeader,
+			@PathVariable("id")
+			Integer id){
+		
+		String loginDoComprador = tokenUtil.extractLoginDo(authHeader);
+		
+		ListaDeCompra listaAtualizada = service.atualizarStatusPor(loginDoComprador, id, Confirmacao.N);
+		
+		return ResponseEntity.ok(converter.toJsonMap(listaAtualizada, "usuario", "comprador"));
+		
+	}
+	
+	@PutMapping("/{id-lista}/encerrar")
+	@Transactional
+	public ResponseEntity<?> encerrarCarrinho(
+			@RequestHeader("Authorization") 
+			String authHeader,
+			@PathVariable("id-lista")
+			Integer idDaLista){
+		
+		String loginDoComprador = tokenUtil.extractLoginDo(authHeader);
+		
+		this.service.atualizarStatusPor(loginDoComprador, idDaLista, StatusDaLista.ENCERRADA);
+		
+		return ResponseEntity.ok().build();
+	}
+	
+	@PutMapping("/{id-lista}/carrinho")
+	@Transactional
+	public ResponseEntity<?> adicionarNoCarrinhoPor(
+			@RequestHeader("Authorization") 
+			String authHeader,
+			@PathVariable("id-lista")
+			Integer idDaLista,
+			@RequestBody
+			ItemDoCarrinho itemDoCarrinho){
+		
+		String loginDoComprador = tokenUtil.extractLoginDo(authHeader);
+		
+		this.service.adicionarNoCarrinhoPor(idDaLista, itemDoCarrinho, loginDoComprador);
+		
+		return ResponseEntity.ok().build();
+		
+	}
+	
+	@DeleteMapping("/{id-lista}/produto/{id-produto}/carrinho")
+	@Transactional
+	public ResponseEntity<?> retirarDoCarrinhoPor(
+			@RequestHeader("Authorization") 
+			String authHeader,
+			@PathVariable("id-lista")
+			Integer idDaLista,
+			@PathVariable("id-produto")
+			Integer idDoProduto){
+		
+		String loginDoComprador = tokenUtil.extractLoginDo(authHeader);
+		
+		this.service.retirarDoCarrinhoPor(idDaLista, idDoProduto, loginDoComprador);
+		
+		return ResponseEntity.ok().build();
+		
+	}
+	
+}

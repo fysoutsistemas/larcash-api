@@ -10,8 +10,19 @@ import jakarta.validation.constraints.NotBlank;
 
 @Component
 public class TokenUtil {
+	
+	private final int CAMPO_LOGIN = 0,
+			          CAMPO_FAMILIA = 2;			
 
-	public String extractLoginDo(
+	public String extractLoginDo(String authHeader) {
+	    return extractCamposDo(authHeader)[CAMPO_LOGIN];
+	}
+	
+	public Integer extractIdDaFamiliaDo(String authHeader) {
+		return Integer.parseInt(extractCamposDo(authHeader)[CAMPO_FAMILIA]);		
+	}
+
+	private String[] extractCamposDo(
 			@NotBlank(message = "O header de autorização é obrigatório")
 			String authHeader) {
 		
@@ -22,10 +33,10 @@ public class TokenUtil {
 		String dadosDoToken[] = new String(Base64.getDecoder()
 	    		.decode(token.getBytes())).split(",");
 	    
-	    Preconditions.checkArgument(dadosDoToken.length == 2, "Token inválido");
+	    Preconditions.checkArgument(dadosDoToken.length == 3, "Token inválido");
 	    
-	    return dadosDoToken[0];
-
+	    return dadosDoToken;
+		
 	}
 	
 }

@@ -8,6 +8,7 @@ import java.util.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import com.google.common.base.Preconditions;
 import com.google.common.hash.Hashing;
@@ -17,6 +18,7 @@ import br.com.larcash.repository.UsuariosRepository;
 import jakarta.validation.constraints.NotBlank;
 
 @Service
+@Validated
 public class AuthService {
 
 	@Autowired
@@ -43,8 +45,9 @@ public class AuthService {
 		//Cria uma validade de 8 horas
 		LocalDateTime validade = LocalDateTime.now().plusHours(validadeEmHoras);
 		
-		String baseDoToken = usuarioEncontrado.getLogin() + "," + validade.atZone(
-				ZoneId.systemDefault()).toInstant().toEpochMilli();
+		String baseDoToken = usuarioEncontrado.getLogin() 
+				+ "," + validade.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() 
+				+ "," + usuarioEncontrado.getIdDaFamilia();
 		
 		String tokenGerado = Base64.getEncoder().encodeToString(baseDoToken.getBytes());
 		

@@ -62,10 +62,10 @@ public class CategoriaController {
 
 		Orcamento orcamentoEncontrado = orcamentoService.buscarUltimoPor(loginDoToken);
 
-		Categoria categoriaAlterada = service.atualizarLimitePor(novoLimite.getIdDaCategoria(), 
+		Categoria categoriaAtualizada = service.atualizarLimitePor(novoLimite.getIdDaCategoria(), 
 				orcamentoEncontrado.getId(), novoLimite.getValor());
 
-		return ResponseEntity.ok(converter.toJsonMap(categoriaAlterada));
+		return ResponseEntity.ok(converter.toJsonMap(categoriaAtualizada));
 
 	}
 	

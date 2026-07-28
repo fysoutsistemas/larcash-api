@@ -72,7 +72,7 @@ public class AuthFilter extends OncePerRequestFilter{
 				    String dadosDoToken[] = new String(Base64.getDecoder()
 				    		.decode(token.getBytes())).split(",");
 				    
-				    Preconditions.checkArgument(dadosDoToken.length == 2, "Token inválido");
+				    Preconditions.checkArgument(dadosDoToken.length == 3, "Token inválido");
 				    
 				    String login = dadosDoToken[0];
 				    

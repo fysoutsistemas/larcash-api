@@ -18,7 +18,7 @@ import br.com.larcash.entity.Orcamento;
 import br.com.larcash.entity.composite.CategoriaDoOrcamentoId;
 import br.com.larcash.enums.Status;
 import br.com.larcash.exception.RegistroNaoEncontradoException;
-import br.com.larcash.repository.CategoriasDaOrctoRepository;
+import br.com.larcash.repository.CategoriasDoOrctoRepository;
 import br.com.larcash.repository.CategoriasRepository;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -32,7 +32,7 @@ public class CategoriaService {
 	private CategoriasRepository repository;
 	
 	@Autowired
-	private CategoriasDaOrctoRepository categsDaFamiliaRepository;	
+	private CategoriasDoOrctoRepository categsDaFamiliaRepository;	
 	
 	@Autowired
 	private OrcamentoService orcamentoService;
@@ -43,7 +43,10 @@ public class CategoriaService {
 		return repository.listarPor(status);
 	}
 	
-	public Categoria buscarPor(Integer id) {
+	public Categoria buscarPor(
+			@NotNull(message = "O id da categoria é obrigatório")
+			@Positive(message = "O id da categoria deve ser positivo")
+			Integer id) {
 		
 		Categoria categoriaEncontrada = repository.buscarPor(id);
 		
