@@ -1,9 +1,13 @@
 package br.com.larcash.service;
 
+import java.math.BigDecimal;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
+
+import com.google.common.base.Preconditions;
 
 import br.com.larcash.dto.ContaDeUsuarioEditada;
 import br.com.larcash.dto.NovaContaDeUsuario;
@@ -12,6 +16,7 @@ import br.com.larcash.entity.Familia;
 import br.com.larcash.entity.Orcamento;
 import br.com.larcash.entity.Usuario;
 import br.com.larcash.enums.Confirmacao;
+import br.com.larcash.util.FileUtil;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -20,6 +25,8 @@ import jakarta.validation.constraints.NotNull;
 @Service
 @Validated
 public class ContaDeUsuarioService {
+	
+	private final BigDecimal TAMANHO_MAXIMO = new BigDecimal(1048576);//1mb
 
 	@Autowired
 	private UsuarioService usuarioService;
@@ -38,6 +45,9 @@ public class ContaDeUsuarioService {
 	
 	@Value("${url-view}")
 	private String urlDaView;
+	
+	@Autowired
+	private FileUtil fileUtil;
 	
 	@Transactional
 	public void criar(
@@ -65,6 +75,7 @@ public class ContaDeUsuarioService {
 		novoUsuario.setFamilia(familiaSalva);
 		novoUsuario.setFlChefeDeFamilia(Confirmacao.S);
 		novoUsuario.setFlAlteraOrcamento(Confirmacao.S);
+		novoUsuario.setTelefone(novaConta.getTelefone());
 
 		this.usuarioService.inserir(novoUsuario);			
 
@@ -75,9 +86,14 @@ public class ContaDeUsuarioService {
 			@NotNull(message = "A conta editada não pode ser nulo")
 			ContaDeUsuarioEditada contaEditada) {
 		
+		BigDecimal tamanhoDaFoto = fileUtil.getSize(contaEditada.getFoto());
+		
+		Preconditions.checkArgument(tamanhoDaFoto.compareTo(TAMANHO_MAXIMO) > 0, 
+				"O tamanho máximo da foto não deve ser maior que 1mb");
+		
 		Usuario usuarioAtualizado = usuarioService.atualizarPor(contaEditada.getLogin(), 
 				contaEditada.getNomeCompleto(), contaEditada.getSenhaAtual(), 
-				contaEditada.getNovaSenha());
+				contaEditada.getNovaSenha(), contaEditada.getFoto());
 		
 		Familia familiaDoUsuario = usuarioAtualizado.getFamilia();
 		familiaDoUsuario.setNome(contaEditada.getNomeDaFamilia());		
@@ -102,6 +118,7 @@ public class ContaDeUsuarioService {
 		resumo.setNomeDaFamilia(usuarioEncontrado.getFamilia().getNome());
 		resumo.setFlCategoriasConfiguradas(orcamentoEncontrado.getFlCategoriasConfiguradas());
 		resumo.setFlChefeDaFamilia(usuarioEncontrado.getFlChefeDeFamilia());
+		resumo.setFoto(usuarioEncontrado.getFoto());
 		
 		return resumo;
 

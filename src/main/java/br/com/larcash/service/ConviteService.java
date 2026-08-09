@@ -117,6 +117,7 @@ public class ConviteService {
 	    novoUsuario.setSenha(novoMembro.getSenha());
 	    novoUsuario.setNomeCompleto(novoMembro.getNomeCompleto());
 	    novoUsuario.setFamilia(conviteEncontrado.getFamilia());
+	    novoUsuario.setTelefone(novoMembro.getTelefone());
 
 	    this.usuarioService.inserir(novoUsuario);
 

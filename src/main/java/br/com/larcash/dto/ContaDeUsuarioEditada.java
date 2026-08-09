@@ -22,4 +22,6 @@ public class ContaDeUsuarioEditada {
 
 	private String novaSenha;
 	
+	private String foto;
+	
 }

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.larcash.converter.MapConverter;
 import br.com.larcash.dto.NovoProduto;
+import br.com.larcash.dto.ProdutoSalvo;
 import br.com.larcash.entity.Produto;
 import br.com.larcash.enums.Status;
 import br.com.larcash.service.ProdutoService;
@@ -51,6 +53,22 @@ public class ProdutoController {
 				+ produtoSalvo.getId())).build();
 		
 	}
+	
+	@PutMapping
+	@Transactional
+	public ResponseEntity<?> alterar(
+			@RequestHeader("Authorization") 
+			String authHeader,
+			@RequestBody
+			ProdutoSalvo produtoSalvo){
+		
+		String loginDoToken = tokenUtil.extractLoginDo(authHeader);
+		
+		Produto produtoAtualizado = service.alterar(produtoSalvo, loginDoToken);
+		
+		return ResponseEntity.ok(converter.toJsonMap(produtoAtualizado, "usuario"));
+		
+	}
 
 	@GetMapping("/id/{id}")
 	public ResponseEntity<?> buscarPor(
@@ -67,8 +85,8 @@ public class ProdutoController {
 
 	}
 	
-	@GetMapping
-	public ResponseEntity<?> listarTodos(
+	@GetMapping("/ativos")
+	public ResponseEntity<?> listarAtivos(
 			@RequestHeader("Authorization") 
 			String authHeader){
 

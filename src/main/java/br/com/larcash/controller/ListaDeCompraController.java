@@ -52,7 +52,7 @@ public class ListaDeCompraController {
 
 		ListaDeCompra listaSalva = service.inserir(novaLista, loginDoToken);
 
-		return ResponseEntity.created(URI.create("/listas-compras/id/" 
+		return ResponseEntity.created(URI.create("/compras/id/" 
 				+ listaSalva.getId())).build();
 
 	}
@@ -88,7 +88,7 @@ public class ListaDeCompraController {
 	}
 	
 	@GetMapping
-	public ResponseEntity<?> listarTodos(
+	public ResponseEntity<?> listarTodas(
 			@RequestHeader("Authorization") 
 			String authHeader){
 		
@@ -135,7 +135,7 @@ public class ListaDeCompraController {
 	
 	@PutMapping("/{id-lista}/encerrar")
 	@Transactional
-	public ResponseEntity<?> encerrarCarrinho(
+	public ResponseEntity<?> encerrarLista(
 			@RequestHeader("Authorization") 
 			String authHeader,
 			@PathVariable("id-lista")

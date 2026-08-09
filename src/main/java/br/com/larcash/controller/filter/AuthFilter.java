@@ -32,13 +32,12 @@ public class AuthFilter extends OncePerRequestFilter{
 
 	private final String ENDPOINT_LOGIN = "/auth",
 			             ENDPOINT_STATUS_API = "/actuator",
-			             ENDPOINT_REGISTRO_CONTAS = "/contas-usuarios/registrar",
+			             ENDPOINT_REGISTRO_CONTAS = "/convites/registrar",
 			             ENDPOINT_CONVITE = "/contas-usuarios/convidar",
 			             ENDPOINT_CATEGORIA = "/categorias",
 			             ENDPOINT_ORCAMENTO = "/orcamentos",
 			             METODO_POST = "POST",
 			             METODO_PUT = "PUT";
-	
 	@Autowired
 	private UsuarioService usuarioService;
 	

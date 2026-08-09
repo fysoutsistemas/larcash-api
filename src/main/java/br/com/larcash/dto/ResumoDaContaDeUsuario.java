@@ -23,4 +23,6 @@ public class ResumoDaContaDeUsuario {
 	@NotNull(message = "O indicador de chefe de familia é obrigatório")
 	private Confirmacao flChefeDaFamilia;
 	
+	public String foto;
+	
 }

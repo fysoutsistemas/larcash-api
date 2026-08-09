@@ -22,5 +22,11 @@ public interface UsuariosRepository extends JpaRepository<Usuario, String> {
 			+ "JOIN FETCH u.familia "					
 			+ "WHERE u.login = :login")	
 	public Usuario buscarPorLogin(String login);
+	
+	@Query(value = 
+			"SELECT Coalesce(Count(u), 0) "
+			+ "FROM Usuario u "
+			+ "WHERE u.telefone = :telefone ")
+	public Integer contarUsuariosPor(String telefone);
 
 }

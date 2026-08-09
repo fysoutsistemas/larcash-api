@@ -19,7 +19,7 @@ public interface ProdutosRepository extends JpaRepository<Produto, Integer>{
 			+ "JOIN FETCH p.usuario "
 			+ "WHERE p.familia.id = :idDaFamilia "
 			+ "AND p.status = :status "
-			+ "ORDER BY p.descricao ")
+			+ "ORDER BY p.id DESC ")
 	public List<Produto> listarPor(Integer idDaFamilia, Status status);
 	
 	@Query(value = 

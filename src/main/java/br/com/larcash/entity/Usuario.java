@@ -61,6 +61,14 @@ public class Usuario {
 	@Column(name = "ultimo_token")
 	private String ultimoToken;
 	
+	@NotBlank(message = "O telefone é obrigatório")
+	@Size(max = 20, message = "O telefone não deve conter mais de 20 caracteres")
+	@Column(name = "telefone")
+	private String telefone;
+	
+	@Column(name = "foto")
+	private String foto;
+	
 	public Usuario() {
 		this.flAlteraOrcamento = Confirmacao.N;
 		this.flChefeDeFamilia = Confirmacao.N;

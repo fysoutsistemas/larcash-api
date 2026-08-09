@@ -22,7 +22,6 @@ import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -50,7 +49,6 @@ public class Produto {
 	@Column(name = "foto")
 	private String foto;
 	
-	@Positive(message = "O preço estimado deve ser positivo")
 	@Column(name = "preco_estimado")
 	private BigDecimal precoEstimado;
 	

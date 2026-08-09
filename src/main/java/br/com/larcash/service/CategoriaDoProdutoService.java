@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import com.google.common.base.Preconditions;
+
 import br.com.larcash.entity.CategoriaDoProduto;
 import br.com.larcash.enums.Status;
 import br.com.larcash.exception.RegistroNaoEncontradoException;
@@ -41,4 +43,16 @@ public class CategoriaDoProdutoService {
 		return categoriaEncontrada;
 		
 	}
+	
+	public CategoriaDoProduto buscarAtivaPor(Integer id) {
+		
+		CategoriaDoProduto categoriaEncontrada = buscarPor(id);
+		
+		Preconditions.checkArgument(categoriaEncontrada.isAtiva(), 
+				"A categoria do produto deve estar ativa");
+		
+		return categoriaEncontrada;
+		
+	}
+	
 }

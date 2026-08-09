@@ -24,6 +24,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotBlank;
@@ -104,6 +105,7 @@ public class ListaDeCompra {
 	private Confirmacao flAtivo;
 	
 	@OneToMany(mappedBy = "listaDeCompra", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OrderBy("ordem ASC")
 	private List<ItemDaLista> itens;	
 	
 	public ListaDeCompra() {
@@ -116,6 +118,7 @@ public class ListaDeCompra {
 		this.itens = new ArrayList<>();
 	}
 	
+	@Transient
 	public void adicionar(
 			@NotNull(message = "O produto não pode ser nulo")
 			Produto produto, 

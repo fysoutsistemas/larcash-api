@@ -47,7 +47,19 @@ public class UsuarioService {
 		//impedindo assim ids inexistentes no objeto do usuário
 		this.familiaService.buscarPor(novoUsuario.getIdDaFamilia());
 		
-		novoUsuario.setSenha(senhaCifrada);		
+		novoUsuario.setSenha(senhaCifrada);
+		
+		//Removendo a mascara do telefone
+		String telefoneSemMascara = novoUsuario.getTelefone()
+				.replace("(", "").replace(")", "")
+				.replace(" ", "").replace("-", "");
+		
+		Integer qtdeDeOcorrencias = repository.contarUsuariosPor(telefoneSemMascara);
+		
+		Preconditions.checkArgument(qtdeDeOcorrencias == 0, 
+				"O número de telefone já está em uso");
+		
+		novoUsuario.setTelefone(telefoneSemMascara);
 
 		return repository.save(novoUsuario);
 
@@ -59,7 +71,8 @@ public class UsuarioService {
 			@NotBlank(message = "O nome completo é obrigatório")
 			String nomeCompleto,
 			String senhaAtual, 
-			String novaSenha) {
+			String novaSenha,
+			String foto) {
 		
 		Usuario usuarioEncontrado = buscarPorLogin(login);
 		
@@ -82,6 +95,8 @@ public class UsuarioService {
 		}
 
 		usuarioEncontrado.setNomeCompleto(nomeCompleto);
+		
+		usuarioEncontrado.setFoto(foto);
 
 		return this.repository.save(usuarioEncontrado);
 
