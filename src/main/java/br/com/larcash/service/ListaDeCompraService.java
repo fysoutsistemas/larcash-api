@@ -2,12 +2,15 @@ package br.com.larcash.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -17,6 +20,7 @@ import br.com.larcash.dto.ItemDaListaResumido;
 import br.com.larcash.dto.ItemDoCarrinho;
 import br.com.larcash.dto.ListaDeCompraSalva;
 import br.com.larcash.dto.NovaListaDeCompra;
+import br.com.larcash.dto.ResumoDaLista;
 import br.com.larcash.entity.ItemDaLista;
 import br.com.larcash.entity.ListaDeCompra;
 import br.com.larcash.entity.Produto;
@@ -369,11 +373,48 @@ public class ListaDeCompraService {
 
 	}
 	
-	public List<ListaDeCompra> listarPor(
+	public Page<ListaDeCompra> listarPor(
+			@NotNull(message = "O id da família é obrigatório")
+			@Positive(message = "O id da família deve ser positivo")
+			Integer idDaFamilia,
+			StatusDaLista status,
+			@NotNull(message = "A paginação é obrigatória")
+			Pageable paginacao){
+		return repository.listarPor(idDaFamilia, status, paginacao);
+	}
+	
+	public List<ResumoDaLista> listarResumosPor(
 			@NotNull(message = "O id da família é obrigatório")
 			@Positive(message = "O id da família deve ser positivo")
 			Integer idDaFamilia){
-		return repository.listarPor(idDaFamilia);
+		
+		List<ResumoDaLista> todosStatus = new ArrayList<>();
+		
+		List<ResumoDaLista> resumosEncontrados = repository.listarResumosPor(idDaFamilia);
+		
+		for (StatusDaLista status : StatusDaLista.values()) {
+			
+			boolean isPossuiContagem = false;
+			
+			for (ResumoDaLista resumo : resumosEncontrados) {
+				
+				if (resumo.getStatus() == status) {
+					todosStatus.add(resumo);
+					isPossuiContagem = true;
+					break;
+				}
+				
+			}
+			
+			if (!isPossuiContagem) {
+				//Cria um resumo zerado pois ele não possui contagem na consulta
+				todosStatus.add(new ResumoDaLista(status, 0L));
+			}
+			
+		}
+		
+		return todosStatus;	
+
 	}
 
 }

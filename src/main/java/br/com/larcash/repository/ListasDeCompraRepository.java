@@ -3,11 +3,14 @@ package br.com.larcash.repository;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import br.com.larcash.dto.ResumoDaLista;
 import br.com.larcash.entity.ListaDeCompra;
 import br.com.larcash.enums.StatusDaLista;
 
@@ -34,9 +37,24 @@ public interface ListasDeCompraRepository extends JpaRepository<ListaDeCompra, I
 			+ "JOIN FETCH lc.usuario u "
 			+ "WHERE f.id = :idDaFamilia "
 			+ "AND lc.flAtivo = br.com.larcash.enums.Confirmacao.S "
-			+ "AND lc.status <> br.com.larcash.enums.StatusDaLista.ENCERRADA "
-			+ "ORDER BY lc.id ")
-	public List<ListaDeCompra> listarPor(Integer idDaFamilia);
+			+ "AND (:status IS NULL OR lc.status = :status) "
+			+ "ORDER BY lc.id DESC ",
+			countQuery = 
+					"SELECT Coalesce(Count(lc), 0) "
+					+ "FROM ListaDeCompra lc "
+					+ "WHERE lc.flAtivo = br.com.larcash.enums.Confirmacao.S "
+					+ "AND (:status IS NULL OR lc.status = :status) ")
+	public Page<ListaDeCompra> listarPor(Integer idDaFamilia, 
+			StatusDaLista status, Pageable paginacao);
+	
+	@Query(value = 
+			"SELECT NEW br.com.larcash.dto.ResumoDaLista(lc.status, Count(lc)) "
+			+ "FROM ListaDeCompra lc "
+			+ "WHERE lc.familia.id = :idDaFamilia "
+			+ "AND lc.flAtivo = br.com.larcash.enums.Confirmacao.S "			
+			+ "GROUP BY lc.status "
+			+ "ORDER BY lc.status")
+	public List<ResumoDaLista> listarResumosPor(Integer idDaFamilia);
 	
 	@Modifying
 	@Query(value = 
