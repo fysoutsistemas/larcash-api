@@ -15,6 +15,9 @@ public class FileUtil {
 	
 	private static final BigDecimal MB = new BigDecimal(1048576);
 	
+	private static final String PNG = "data:image/png;base64",
+			                    JPEG = "data:image/jpeg;base64,";
+	
 	public BigDecimal getSize(
 			@NotBlank(message = "O conteúdo do arquivo é obrigatório")
 			String base64File) {
@@ -30,6 +33,12 @@ public class FileUtil {
 		
 		return tamanho;
 
+	}
+	
+	public boolean isImg(
+			@NotBlank(message = "O conteúdo do arquivo é obrigatório")
+			String base64File) {				
+		return base64File.startsWith(PNG) || base64File.startsWith(JPEG); 
 	}
 
 }

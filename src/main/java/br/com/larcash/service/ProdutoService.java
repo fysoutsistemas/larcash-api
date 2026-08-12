@@ -52,9 +52,12 @@ public class ProdutoService {
 		
 		if (!Strings.isBlank(novoProduto.getFoto())) {
 
+			Preconditions.checkArgument(fileUtil.isImg(novoProduto.getFoto()), 
+					"Formato de arquivo inválido");			
+			
 			BigDecimal tamanhoDaFoto = fileUtil.getSize(novoProduto.getFoto());
 
-			Preconditions.checkArgument(tamanhoDaFoto.compareTo(TAMANHO_MAXIMO) > 0, 
+			Preconditions.checkArgument(tamanhoDaFoto.compareTo(TAMANHO_MAXIMO) < 0, 
 					"O tamanho máximo da foto não deve ser maior que 500kb");
 
 		}
@@ -84,10 +87,13 @@ public class ProdutoService {
 			String login) {
 		
 		if (!Strings.isBlank(produtoSalvo.getFoto())) {
+			
+			Preconditions.checkArgument(fileUtil.isImg(produtoSalvo.getFoto()), 
+					"Formato de arquivo inválido");
 
 			BigDecimal tamanhoDaFoto = fileUtil.getSize(produtoSalvo.getFoto());
 
-			Preconditions.checkArgument(tamanhoDaFoto.compareTo(TAMANHO_MAXIMO) > 0, 
+			Preconditions.checkArgument(tamanhoDaFoto.compareTo(TAMANHO_MAXIMO) < 0, 
 					"O tamanho máximo da foto não deve ser maior que 500kb");
 
 		}
