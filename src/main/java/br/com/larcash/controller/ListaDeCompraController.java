@@ -37,7 +37,7 @@ import jakarta.transaction.Transactional;
 @RequestMapping("/compras")
 public class ListaDeCompraController {
 	
-	private final Integer QTDE_REGISTROS = 2,
+	private final Integer QTDE_REGISTROS = 10,
 			              PRIMEIRA_PAGINA = 0;
 	
 	@Autowired
