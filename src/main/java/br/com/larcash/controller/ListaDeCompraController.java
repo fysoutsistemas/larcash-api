@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.larcash.converter.MapConverter;
 import br.com.larcash.dto.ItemDoCarrinho;
+import br.com.larcash.dto.ListaDeCompraEncerrada;
 import br.com.larcash.dto.ListaDeCompraSalva;
 import br.com.larcash.dto.NovaListaDeCompra;
 import br.com.larcash.dto.ResumoDaLista;
@@ -165,17 +166,19 @@ public class ListaDeCompraController {
 		
 	}
 	
-	@PutMapping("/{id-lista}/encerrar")
+	@PutMapping("/encerrar")
 	@Transactional
 	public ResponseEntity<?> encerrarLista(
 			@RequestHeader("Authorization") 
 			String authHeader,
-			@PathVariable("id-lista")
-			Integer idDaLista){
+			@RequestBody
+			ListaDeCompraEncerrada lista){
 		
 		String loginDoComprador = tokenUtil.extractLoginDo(authHeader);
 		
-		this.service.atualizarStatusPor(loginDoComprador, idDaLista, StatusDaLista.ENCERRADA);
+		lista.setLoginDoComprador(loginDoComprador);
+		
+		this.service.encerrar(lista);
 		
 		return ResponseEntity.ok().build();
 	}

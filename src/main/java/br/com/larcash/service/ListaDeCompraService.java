@@ -2,6 +2,8 @@ package br.com.larcash.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,6 +20,7 @@ import com.google.common.base.Preconditions;
 
 import br.com.larcash.dto.ItemDaListaResumido;
 import br.com.larcash.dto.ItemDoCarrinho;
+import br.com.larcash.dto.ListaDeCompraEncerrada;
 import br.com.larcash.dto.ListaDeCompraSalva;
 import br.com.larcash.dto.NovaListaDeCompra;
 import br.com.larcash.dto.ResumoDaLista;
@@ -30,6 +33,7 @@ import br.com.larcash.enums.StatusDaLista;
 import br.com.larcash.exception.RegistroNaoEncontradoException;
 import br.com.larcash.repository.ItensDaListaRepository;
 import br.com.larcash.repository.ListasDeCompraRepository;
+import br.com.larcash.util.CloneUtil;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -50,6 +54,12 @@ public class ListaDeCompraService {
 	
 	@Autowired
 	private UsuarioService usuarioService;
+	
+	@Autowired
+	private LanctoService lanctoService;
+	
+	@Autowired
+	private CloneUtil cloneUtil;
 
 	public ListaDeCompra inserir(
 			@Valid
@@ -67,6 +77,7 @@ public class ListaDeCompraService {
 		lista.setUsuario(usuario);
 		lista.setFamilia(usuario.getFamilia());
 		lista.setQtde(novaLista.getItens().size());
+		lista.setFlRecorrente(novaLista.getFlRecorrente());
 
 		for (ItemDaListaResumido novoItem : novaLista.getItens()) {
 
@@ -91,15 +102,16 @@ public class ListaDeCompraService {
 			String loginAlterador) {
 
 		this.validar(listaSalva.getItens());			
-		
+
 		Usuario usuario = usuarioService.buscarPorLogin(loginAlterador);
-		
-		ListaDeCompra lista = buscarPor(usuario.getIdDaFamilia(), listaSalva.getId());
-		
-		Preconditions.checkArgument(lista.isNova(), "A edição só é possível quando a lista é nova");
+
+		ListaDeCompra lista = buscarPor(usuario.getIdDaFamilia(), listaSalva.getId());			
+
+		Preconditions.checkArgument(lista.isNova(), "A edição só é possível quando a lista é nova");			
 
 		lista.setNome(listaSalva.getNome());
 		lista.setQtde(listaSalva.getItens().size());
+		lista.setFlRecorrente(listaSalva.getFlRecorrente());
 
 		//Limpa a lista encontrada na consulta
 		lista.removerItens();
@@ -348,12 +360,83 @@ public class ListaDeCompraService {
 
 	}
 	
+	public ListaDeCompra encerrar(
+			@Valid
+			@NotNull(message = "A listta não pode ser nula")
+			ListaDeCompraEncerrada lista) {	
+		
+		Usuario comprador = usuarioService.buscarPorLogin(
+				lista.getLoginDoComprador());
+		
+		ListaDeCompra listaEncontrada = repository.buscarPor(
+				comprador.getIdDaFamilia(), lista.getId());				
+		
+		//Validar a existencia da Lista Encontrada
+		
+		ListaDeCompra listaProcessada = null;
+		
+		if (listaEncontrada.isRecorrente()) {
+
+			listaProcessada = cloneUtil.deepClone(listaEncontrada, ListaDeCompra.class);
+			
+			String hojeFormatado = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+					.format(LocalDate.now());
+			
+			String nomeAtualizado = listaProcessada.getNome() + " - " + hojeFormatado;
+			
+			//Remove o ID para tornar a lista salva em uma lista nova
+			listaProcessada.setId(null);
+			listaProcessada.setNome(nomeAtualizado);
+			listaProcessada.setComprador(comprador);
+			listaProcessada.setStatus(StatusDaLista.ENCERRADA);
+			listaProcessada.setFlRecorrente(Confirmacao.N);
+
+			for (ItemDaLista item : listaProcessada.getItens()) {
+
+				Produto produto = produtoService.buscarPor(comprador
+						.getIdDaFamilia(), item.getIdDoProduto());
+
+				item.setProduto(produto);//Atualiza o produto
+				item.vincularChave(item.getIdDoProduto(), listaProcessada.getId());
+				item.setListaDeCompra(listaProcessada);
+
+				//Tira o item do carrinho da lista recorrente
+				this.itensRepository.atualizarStatusNoCarrinhoPor(
+						lista.getId(), produto.getId(), Confirmacao.N);
+
+			}
+
+			//Salva a cópia da lista recorrente porém encerrada
+			this.repository.save(listaProcessada);
+			
+			//Devolve a lista recorrente para o status inicial
+			this.reiniciarLista(comprador.getIdDaFamilia(), lista.getId());			
+			
+		}else {
+			listaProcessada = atualizarStatusPor(lista.getLoginDoComprador(), 
+					lista.getId(), StatusDaLista.ENCERRADA);
+		}
+		
+
+		if (lista.getFlagLancarDespesa() == Confirmacao.S) {
+			this.lanctoService.lancarDespesaDa(listaProcessada);
+		}
+
+		return listaProcessada;
+
+	}
+	
+	private void reiniciarLista(Integer idDaFamilia, Integer idDaLista) {
+		this.repository.reiniciarPor(idDaFamilia, idDaLista);
+	}
+		
 	public ListaDeCompra atualizarStatusPor(
 			@NotBlank(message = "O login do comprador é obrigatório")
 			String loginDoComprador,
 			@NotNull(message = "O id da lista é obrigatório")
 			@Positive(message = "O id da lista deve ser positivo")
 			Integer idDaLista,
+			@NotNull(message = "O status não pode ser nulo")
 			StatusDaLista status) {
 		
 		Usuario comprador = usuarioService.buscarPorLogin(loginDoComprador);

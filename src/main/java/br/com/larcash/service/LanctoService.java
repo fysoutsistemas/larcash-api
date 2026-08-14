@@ -2,6 +2,7 @@ package br.com.larcash.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +17,9 @@ import br.com.larcash.dto.PainelFinanceiro;
 import br.com.larcash.dto.ResumoGeral;
 import br.com.larcash.dto.ResumoPorCategoria;
 import br.com.larcash.entity.Categoria;
+import br.com.larcash.entity.CategoriaDoOrcamento;
 import br.com.larcash.entity.Lancamento;
+import br.com.larcash.entity.ListaDeCompra;
 import br.com.larcash.entity.Orcamento;
 import br.com.larcash.entity.Usuario;
 import br.com.larcash.exception.RegistroNaoEncontradoException;
@@ -58,6 +61,44 @@ public class LanctoService {
 		
 		return repository.buscarPor(lanctoSalvo.getId(), lanctoSalvo.getLogin());
 		
+	}
+	
+	public Lancamento lancarDespesaDa(
+			@NotNull(message = "A lista de compras não pode ser nula")
+			ListaDeCompra listaEncerrada) {
+
+		Preconditions.checkArgument(listaEncerrada.isEncerrada(), 
+				"A lista deve estar ENCERRADA");
+
+		final String SUPERMERCADO = "Supermercado";
+
+		Usuario usuario = usuarioService.buscarPorLogin(
+				listaEncerrada.getLoginComprador());
+
+		Orcamento orcamento = orcamentoService.buscarUltimoPor(
+				listaEncerrada.getLoginComprador());
+
+		CategoriaDoOrcamento categDoOrcamento = categoriaService.buscarPor(
+				orcamento.getId(), SUPERMERCADO);
+
+		Lancamento novoLancto = new Lancamento();			
+
+		novoLancto.setDescricao(listaEncerrada.getNome());
+		
+		novoLancto.setValor(listaEncerrada.getTotalDaCompra());
+		
+		novoLancto.setData(LocalDate.now());
+
+		novoLancto.setCategoria(categDoOrcamento.getCategoria());
+
+		novoLancto.setUsuario(usuario);
+
+		novoLancto.setFamilia(usuario.getFamilia());
+
+		novoLancto.setOrcamento(orcamento);				
+
+		return inserir(novoLancto);
+
 	}
 	
 	public Lancamento buscarPor(String login, Integer id) {

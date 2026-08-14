@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import br.com.larcash.entity.composite.ItemDaListaId;
 import br.com.larcash.enums.Confirmacao;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -49,7 +50,7 @@ public class ItemDaLista {
 	private ListaDeCompra listaDeCompra;
 	
 	@ToString.Exclude
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
 	@MapsId("idDoProduto")
 	@JoinColumn(name = "id_produto")
 	@NotNull(message = "O produto do item é obrigatório")

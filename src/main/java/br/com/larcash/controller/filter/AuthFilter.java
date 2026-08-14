@@ -61,7 +61,7 @@ public class AuthFilter extends OncePerRequestFilter{
 					&& !ENDPOINT_CONVITE.equals(pathDoEndpoint)
 					&& !ENDPOINT_LOGIN.equals(pathDoEndpoint) 
 					&& !pathDoEndpoint.startsWith(ENDPOINT_STATUS_API)) {
-				
+
 				String authHeader = requestCache.getHeader("Authorization");
 				
 				if (authHeader != null && authHeader.startsWith("Bearer ")) {

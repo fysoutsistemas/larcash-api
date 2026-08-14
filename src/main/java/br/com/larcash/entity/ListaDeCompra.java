@@ -104,9 +104,14 @@ public class ListaDeCompra {
 	@Column(name = "fl_ativo")
 	private Confirmacao flAtivo;
 	
+	@Enumerated(value = EnumType.STRING)
+	@NotNull(message = "O indicador de recorrência da lista é obrigatório")
+	@Column(name = "fl_recorrente")
+	private Confirmacao flRecorrente;
+	
 	@OneToMany(mappedBy = "listaDeCompra", cascade = CascadeType.ALL, orphanRemoval = true)
 	@OrderBy("ordem ASC")
-	private List<ItemDaLista> itens;	
+	private List<ItemDaLista> itens;
 	
 	public ListaDeCompra() {
 		this.difDeTotais = new BigDecimal(0.0);
@@ -115,6 +120,7 @@ public class ListaDeCompra {
 		this.status = StatusDaLista.NOVA;
 		this.dataDeMovto = LocalDateTime.now();
 		this.flAtivo = Confirmacao.S;
+		this.flRecorrente = Confirmacao.N;
 		this.itens = new ArrayList<>();
 	}
 	
@@ -156,7 +162,7 @@ public class ListaDeCompra {
 	public boolean isNova() {
 		return getStatus() == StatusDaLista.NOVA;
 	}
-	
+
 	@JsonIgnore
 	@Transient
 	public boolean isEncerrada() {
@@ -167,6 +173,12 @@ public class ListaDeCompra {
 	@Transient
 	public boolean isIniciada() {
 		return getStatus() == StatusDaLista.INICIADA;
+	}
+	
+	@JsonIgnore
+	@Transient
+	public boolean isRecorrente() {
+		return getFlRecorrente() == Confirmacao.S;
 	}
 	
 	@Transient

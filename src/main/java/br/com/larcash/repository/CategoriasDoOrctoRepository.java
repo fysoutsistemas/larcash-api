@@ -41,6 +41,14 @@ public interface CategoriasDoOrctoRepository extends
 			+ "AND co.categoria.id = :idDaCategoria ")
 	public BigDecimal buscarLimitePor(Integer idDaFamilia, Integer idDaCategoria);
 	
+	@Query(value = 
+			"SELECT co "
+			+ "FROM CategoriaDoOrcamento co "
+			+ "JOIN FETCH co.categoria "
+			+ "WHERE co.orcamento.id = :idDoOrcamento "
+			+ "AND co.categoria.nome = :nome ")
+	public CategoriaDoOrcamento buscarPor(Integer idDoOrcamento, String nome);
+	
 	@Modifying
 	@Query(value = 
 			"UPDATE CategoriaDoOrcamento co "

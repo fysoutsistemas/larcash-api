@@ -38,7 +38,7 @@ public interface ListasDeCompraRepository extends JpaRepository<ListaDeCompra, I
 			+ "WHERE f.id = :idDaFamilia "
 			+ "AND lc.flAtivo = br.com.larcash.enums.Confirmacao.S "
 			+ "AND (:status IS NULL OR lc.status = :status) "
-			+ "ORDER BY lc.id DESC ",
+			+ "ORDER BY lc.status DESC, lc.id DESC ",
 			countQuery = 
 					"SELECT Coalesce(Count(lc), 0) "
 					+ "FROM ListaDeCompra lc "
@@ -62,6 +62,16 @@ public interface ListasDeCompraRepository extends JpaRepository<ListaDeCompra, I
 			+ "WHERE lc.id = :idDaLista "
 			+ "AND lc.familia.id = :idDaFamilia ")
 	public void atualizarStatusPor(Integer idDaFamilia, Integer idDaLista, StatusDaLista status);
+	
+	@Modifying
+	@Query(value = 
+			"UPDATE ListaDeCompra lc "
+			+ "SET lc.status = br.com.larcash.enums.StatusDaLista.NOVA, "
+			+ "    lc.totalDaCompra = 0.0, lc.comprador.login = null, "
+			+ "    lc.difDeTotais = lc.totalEstimado "
+			+ "WHERE lc.id = :idDaLista "
+			+ "AND lc.familia.id = :idDaFamilia ")
+	public void reiniciarPor(Integer idDaFamilia, Integer idDaLista);
 	
 	@Modifying
 	@Query(value = 

@@ -20,6 +20,7 @@ import br.com.larcash.enums.Status;
 import br.com.larcash.exception.RegistroNaoEncontradoException;
 import br.com.larcash.repository.CategoriasDoOrctoRepository;
 import br.com.larcash.repository.CategoriasRepository;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -56,6 +57,24 @@ public class CategoriaService {
 		
 		return categoriaEncontrada;
 		
+	}
+	
+	public CategoriaDoOrcamento buscarPor(
+			@NotNull(message = "O id do orçamento é obrigatório")
+			@Positive(message = "O id do orçamento deve ser positivo")
+			Integer idDoOrcamento,
+			@NotBlank(message = "O nome da categoria é obrigatória")
+			String nome) {
+
+		CategoriaDoOrcamento categoriaEncontrada = categsDaFamiliaRepository
+				.buscarPor(idDoOrcamento, nome);
+
+		Optional.ofNullable(categoriaEncontrada)
+				.orElseThrow(() -> new RegistroNaoEncontradoException(
+						"Não existe categoria vinculada aos parâmetros informados"));
+
+		return categoriaEncontrada;
+
 	}
 	
 	public BigDecimal buscarLimitePor(
