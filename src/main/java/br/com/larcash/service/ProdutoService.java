@@ -202,7 +202,7 @@ public class ProdutoService {
 			Integer idDoProduto,
 			BigDecimal novoPreco) {
 
-		Produto produtoEncontrado = buscarAtivoPor(idDaFamilia, idDoProduto);
+		Produto produtoEncontrado = buscarPor(idDaFamilia, idDoProduto);
 
 		produtoEncontrado.setPrecoEstimado(novoPreco);
 

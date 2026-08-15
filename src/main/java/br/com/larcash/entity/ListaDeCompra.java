@@ -8,8 +8,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import br.com.larcash.config.validation.AoAlterar;
-import br.com.larcash.config.validation.AoInserir;
+import br.com.larcash.config.validation.grupo.AoAlterar;
+import br.com.larcash.config.validation.grupo.AoInserir;
 import br.com.larcash.enums.Confirmacao;
 import br.com.larcash.enums.StatusDaLista;
 import jakarta.persistence.CascadeType;

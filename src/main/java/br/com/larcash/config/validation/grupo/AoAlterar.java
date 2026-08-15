@@ -1,4 +1,4 @@
-package br.com.larcash.config.validation;
+package br.com.larcash.config.validation.grupo;
 
 import jakarta.validation.groups.Default;
 

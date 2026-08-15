@@ -1,6 +1,8 @@
 package br.com.larcash.repository;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -58,10 +60,13 @@ public interface ListasDeCompraRepository extends JpaRepository<ListaDeCompra, I
 	
 	@Modifying
 	@Query(value = 
-			"UPDATE ListaDeCompra lc SET lc.status = :status "
+			"UPDATE ListaDeCompra lc "
+			+ "SET lc.status = :status,"
+			+ "    lc.dataDeMovto = :dataDeMovto "
 			+ "WHERE lc.id = :idDaLista "
 			+ "AND lc.familia.id = :idDaFamilia ")
-	public void atualizarStatusPor(Integer idDaFamilia, Integer idDaLista, StatusDaLista status);
+	public void atualizarStatusPor(Integer idDaFamilia, Integer idDaLista, 
+			StatusDaLista status, LocalDateTime dataDeMovto);
 	
 	@Modifying
 	@Query(value = 
@@ -79,11 +84,20 @@ public interface ListasDeCompraRepository extends JpaRepository<ListaDeCompra, I
 			+ "SET lc.totalDaCompra = :totalDaCompra,"
 			+ "    lc.totalEstimado = :totalEstimado,"
 			+ "    lc.difDeTotais = :difDeTotais,"
-			+ "    lc.comprador.login = :loginDoComprador "
+			+ "    lc.comprador.login = :loginDoComprador,"
+			+ "    lc.dataDeMovto = :dataDeMovto "
 			+ "WHERE lc.id = :idDaLista "
 			+ "AND lc.familia.id = :idDaFamilia ")
 	public void atualizarTotaisPor(Integer idDaFamilia, Integer idDaLista, 
 			BigDecimal totalDaCompra, BigDecimal totalEstimado, 
-			BigDecimal difDeTotais, String loginDoComprador);	
+			BigDecimal difDeTotais, String loginDoComprador, 
+			LocalDateTime dataDeMovto);
 	
+	@Query(value = 
+			"SELECT Coalesce(Count(lc), 0) AS qtde "
+			+ "FROM ListaDeCompra lc "
+			+ "WHERE lc.familia.id = :idDaFamilia "
+			+ "AND CAST(lc.dataDeMovto AS LocalDate) >= :dataDeInicio "
+			+ "AND lc.status = br.com.larcash.enums.StatusDaLista.ENCERRADA ")
+	public Integer contarListasPor(Integer idDaFamilia, LocalDate dataDeInicio);
 }

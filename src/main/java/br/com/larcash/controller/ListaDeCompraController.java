@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.larcash.converter.MapConverter;
+import br.com.larcash.dto.DashboardDeCompras;
 import br.com.larcash.dto.ItemDoCarrinho;
 import br.com.larcash.dto.ListaDeCompraEncerrada;
 import br.com.larcash.dto.ListaDeCompraSalva;
@@ -216,6 +217,21 @@ public class ListaDeCompraController {
 		this.service.retirarDoCarrinhoPor(idDaLista, idDoProduto, loginDoComprador);
 		
 		return ResponseEntity.ok().build();
+		
+	}
+	
+	@GetMapping("/dashboard/me")
+	public ResponseEntity<?> buscarDashboard(
+			@RequestHeader("Authorization") 
+			String authHeader){
+		
+		final Integer PERIODO_DIAS = 30;
+		
+		Integer idDaFamilia = tokenUtil.extractIdDaFamiliaDo(authHeader);
+		
+		DashboardDeCompras dashboard = service.buscarDashboardPor(idDaFamilia, PERIODO_DIAS);
+		
+		return ResponseEntity.ok(converter.toJsonMap(dashboard));
 		
 	}
 	

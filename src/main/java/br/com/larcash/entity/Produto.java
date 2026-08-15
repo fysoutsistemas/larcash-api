@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import br.com.larcash.config.validation.AoInserir;
+import br.com.larcash.config.validation.grupo.AoInserir;
 import br.com.larcash.enums.Status;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

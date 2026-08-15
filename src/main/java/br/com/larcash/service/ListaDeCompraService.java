@@ -3,6 +3,7 @@ package br.com.larcash.service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,12 +19,15 @@ import org.springframework.validation.annotation.Validated;
 
 import com.google.common.base.Preconditions;
 
+import br.com.larcash.config.validation.anotacao.IdValido;
+import br.com.larcash.dto.DashboardDeCompras;
 import br.com.larcash.dto.ItemDaListaResumido;
 import br.com.larcash.dto.ItemDoCarrinho;
 import br.com.larcash.dto.ListaDeCompraEncerrada;
 import br.com.larcash.dto.ListaDeCompraSalva;
 import br.com.larcash.dto.NovaListaDeCompra;
 import br.com.larcash.dto.ResumoDaLista;
+import br.com.larcash.dto.ResumoDeComprasDaCateg;
 import br.com.larcash.entity.ItemDaLista;
 import br.com.larcash.entity.ListaDeCompra;
 import br.com.larcash.entity.Produto;
@@ -33,6 +37,7 @@ import br.com.larcash.enums.StatusDaLista;
 import br.com.larcash.exception.RegistroNaoEncontradoException;
 import br.com.larcash.repository.ItensDaListaRepository;
 import br.com.larcash.repository.ListasDeCompraRepository;
+import br.com.larcash.repository.projection.TotalDeComprasPorCateg;
 import br.com.larcash.util.CloneUtil;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -163,6 +168,7 @@ public class ListaDeCompraService {
 		
 		if (listaDoItem.isNova()) {
 			listaDoItem.setStatus(StatusDaLista.INICIADA);
+			listaDoItem.setDataDeMovto(LocalDateTime.now());
 		}
 		
 		itemDaLista.setFlagNoCarrinho(Confirmacao.S);
@@ -191,7 +197,7 @@ public class ListaDeCompraService {
 		
 		this.repository.atualizarTotaisPor(comprador.getIdDaFamilia(), idDaLista, 
 				totalDaCompra, totalEstimado, listaDoItem.getDifDeTotais(), 
-				loginDoComprador);
+				loginDoComprador, listaDoItem.getDataDeMovto());
 		
 		this.produtoService.atualizarPrecoPor(comprador.getIdDaFamilia(), 
 				itemDaLista.getIdDoProduto(), itemDoCarrinho.getPreco());
@@ -233,15 +239,15 @@ public class ListaDeCompraService {
 		
 		if (qtdeDeItensNoCarrinho == 0) {
 			this.repository.atualizarStatusPor(comprador.getIdDaFamilia(), 
-					idDaLista, StatusDaLista.NOVA);
+					idDaLista, StatusDaLista.NOVA, LocalDateTime.now());
 		}
 		
 		this.itensRepository.atualizarStatusNoCarrinhoPor(listaDoItem.getId(), 
 				itemDaLista.getProduto().getId(), itemDaLista.getFlagNoCarrinho());
 		
-		this.repository.atualizarTotaisPor(comprador.getIdDaFamilia(), idDaLista, 
-				listaDoItem.getTotalDaCompra(), listaDoItem.getTotalEstimado(), 
-				listaDoItem.getDifDeTotais(), loginDoComprador);			
+		this.repository.atualizarTotaisPor(comprador.getIdDaFamilia(), 
+				idDaLista, listaDoItem.getTotalDaCompra(), listaDoItem.getTotalEstimado(), 
+				listaDoItem.getDifDeTotais(), loginDoComprador, listaDoItem.getDataDeMovto());
 		
 		return itemDaLista;
 
@@ -498,6 +504,49 @@ public class ListaDeCompraService {
 		
 		return todosStatus;	
 
+	}
+		
+	public DashboardDeCompras buscarDashboardPor(
+			@IdValido(nomeDoAtributo = "id da família")
+			Integer idDaFamilia,
+			@NotNull(message = "O período em dias é obrigatório")
+			@Positive(message = "O período em dias deve ser positivo")
+			Integer periodoEmDias) {
+
+		LocalDate inicio = LocalDate.now().minusDays(periodoEmDias);
+		
+		List<TotalDeComprasPorCateg> totalizadores = itensRepository
+				.totalizarComprasPor(idDaFamilia, inicio);
+		
+		Integer qtdeDeListas = repository.contarListasPor(idDaFamilia, inicio);
+		
+		BigDecimal totalGeral = totalizadores.stream()
+				.map(TotalDeComprasPorCateg::getTotalDaCompra)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+		
+		DashboardDeCompras dashboard = new DashboardDeCompras();
+		dashboard.setPeriodoEmDias(periodoEmDias);
+		dashboard.setTotalDeListas(qtdeDeListas);
+		dashboard.setTotalComprado(totalGeral);
+		
+		for (TotalDeComprasPorCateg totalizador : totalizadores) {
+			
+			Integer percentual = totalizador.getTotalDaCompra()
+					.divide(totalGeral, 2, RoundingMode.HALF_EVEN)
+					.multiply(new BigDecimal(100))
+					.intValue();
+			
+			ResumoDeComprasDaCateg resumo = new ResumoDeComprasDaCateg();
+			resumo.setNome(totalizador.getNomeDaCategoria());
+			resumo.setCor(totalizador.getCorDaCategoria());
+			resumo.setTotal(totalizador.getTotalDaCompra());
+			resumo.setPercentual(percentual);
+			
+			dashboard.getResumosPorCateg().add(resumo);
+			
+		}
+		
+		return dashboard;
 	}
 
 }
