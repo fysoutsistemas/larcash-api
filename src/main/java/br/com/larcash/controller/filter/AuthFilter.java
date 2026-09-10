@@ -33,7 +33,7 @@ public class AuthFilter extends OncePerRequestFilter{
 	private final String ENDPOINT_LOGIN = "/auth",
 			             ENDPOINT_STATUS_API = "/actuator",
 			             ENDPOINT_REGISTRO_CONTAS = "/convites/registrar",
-			             ENDPOINT_CONVITE = "/contas-usuarios/convidar",
+			             ENDPOINT_CONVITE = "/contas-usuarios/registrar",
 			             ENDPOINT_CATEGORIA = "/categorias",
 			             ENDPOINT_ORCAMENTO = "/orcamentos",
 			             METODO_POST = "POST",
@@ -49,6 +49,13 @@ public class AuthFilter extends OncePerRequestFilter{
 			FilterChain filterChain) throws ServletException, IOException {
 
 		try {
+			
+			// Libera requisições Preflight (OPTIONS) sem exigir token de autenticação
+		    if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+		        response.setStatus(HttpServletResponse.SC_OK);
+		        filterChain.doFilter(request, response);
+		        return;
+		    }
 			
 			//Cria um cache com a cópia do request para poder manipular
 			CustomHttpServletRequestWrapper requestCache = new CustomHttpServletRequestWrapper(request);

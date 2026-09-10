@@ -14,7 +14,9 @@ import org.springframework.stereotype.Repository;
 
 import br.com.larcash.dto.ResumoDaLista;
 import br.com.larcash.entity.ListaDeCompra;
+import br.com.larcash.enums.Confirmacao;
 import br.com.larcash.enums.StatusDaLista;
+import br.com.larcash.repository.projection.TotaisDaCompra;
 
 @Repository
 public interface ListasDeCompraRepository extends JpaRepository<ListaDeCompra, Integer>{
@@ -48,6 +50,18 @@ public interface ListasDeCompraRepository extends JpaRepository<ListaDeCompra, I
 					+ "AND (:status IS NULL OR lc.status = :status) ")
 	public Page<ListaDeCompra> listarPor(Integer idDaFamilia, 
 			StatusDaLista status, Pageable paginacao);
+	
+	@Query(value = 
+			"SELECT l "
+			+ "FROM ListaDeCompra l "
+			+ "WHERE l.familia.id = :idDaFamilia "
+			+ "AND YEAR(l.dataDeMovto) = :ano "
+			+ "AND MONTH(l.dataDeMovto) = :mes "
+			+ "AND l.status = :status "
+			+ "AND l.flAtivo = :flAtivo "
+			+ "ORDER BY l.id ")
+	public List<ListaDeCompra> listarPor(Integer idDaFamilia, Integer ano, 
+			Integer mes, StatusDaLista status, Confirmacao flAtivo);
 	
 	@Query(value = 
 			"SELECT NEW br.com.larcash.dto.ResumoDaLista(lc.status, Count(lc)) "
@@ -100,4 +114,24 @@ public interface ListasDeCompraRepository extends JpaRepository<ListaDeCompra, I
 			+ "AND CAST(lc.dataDeMovto AS LocalDate) >= :dataDeInicio "
 			+ "AND lc.status = br.com.larcash.enums.StatusDaLista.ENCERRADA ")
 	public Integer contarListasPor(Integer idDaFamilia, LocalDate dataDeInicio);
+	
+	@Query(value = 
+			"SELECT Coalesce(Sum(lc.totalEstimado), 0) AS totalEstimado, "
+			+ "     Coalesce(Sum(lc.totalDaCompra), 0) AS totalComprado, "
+			+ "     Coalesce(Sum(lc.totalEstimado) - Sum(lc.totalDaCompra), 0) AS totalEconomizado, "
+			+ "     Coalesce(((Sum(lc.totalEstimado) - Sum(lc.totalDaCompra)) /  Sum(lc.totalEstimado)) * 100, 0) AS percEconomizado, "
+			+ "     Coalesce(Count(Distinct(lc.id)), 0) AS qtdeDeCompras, "
+			+ "     Coalesce(Count(il.produto.id), 0) AS qtdeDeItens, "
+			+ "     Coalesce(Avg(lc.totalDaCompra), 0) AS mediaDeCompra "
+			+ "FROM ListaDeCompra lc, "
+			+ "     ItemDaLista il "
+			+ "WHERE il.listaDeCompra = lc "
+			+ "AND lc.status = br.com.larcash.enums.StatusDaLista.ENCERRADA "
+			+ "AND lc.flAtivo = br.com.larcash.enums.Confirmacao.S "
+			+ "AND il.flagNoCarrinho = br.com.larcash.enums.Confirmacao.S "
+			+ "AND EXTRACT(YEAR FROM lc.dataDeMovto) = :ano "
+			+ "AND EXTRACT(MONTH FROM lc.dataDeMovto) = :mes "
+			+ "AND lc.familia.id = :idDaFamilia ")
+	public TotaisDaCompra buscarTotaisPor(Integer ano, Integer mes, Integer idDaFamilia);
+	
 }

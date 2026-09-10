@@ -24,6 +24,7 @@ import br.com.larcash.entity.Orcamento;
 import br.com.larcash.entity.Usuario;
 import br.com.larcash.exception.RegistroNaoEncontradoException;
 import br.com.larcash.repository.LanctosRepository;
+import br.com.larcash.repository.projection.GastoPorCategoria;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.validation.Valid;
@@ -55,7 +56,15 @@ public class LanctoService {
 			@NotNull(message = "O novo lancamento não pode ser nulo")
 			Lancamento novoLancto) {
 		
-		Lancamento lanctoSalvo = repository.save(novoLancto);
+		LocalDate dataDoLancto = novoLancto.getData();
+		
+		LocalDate dataDeCriacao = novoLancto.getOrcamento().getDataDeCriacao();
+		
+		Preconditions.checkArgument(dataDoLancto.isEqual(dataDeCriacao) 
+				|| dataDoLancto.isAfter(dataDeCriacao), "O lançamento não "
+						+ "deve anteceder a criação do orçamento");
+		
+		Lancamento lanctoSalvo = repository.save(novoLancto);			
 		
 		this.em.detach(lanctoSalvo);
 		
@@ -150,6 +159,13 @@ public class LanctoService {
 			@Positive(message = "O id do orçamento deve ser positivo")
 			Integer idDoOrcamento) {
 		return repository.somarTotalGastoPor(idDoOrcamento);
+	}
+	
+	public List<GastoPorCategoria> listarGastosDasCategsPor(
+			@NotNull(message = "O id do orçamento é obrigatório")
+			@Positive(message = "O id do orçamento deve ser positivo")
+			Integer idDoOrcamento){
+		return repository.listarGastosDasCategsPor(idDoOrcamento);
 	}
 	
 	public PainelFinanceiro buscarUltimoPainelPor(

@@ -88,7 +88,7 @@ public class ContaDeUsuarioService {
 		
 		BigDecimal tamanhoDaFoto = fileUtil.getSize(contaEditada.getFoto());
 		
-		Preconditions.checkArgument(tamanhoDaFoto.compareTo(TAMANHO_MAXIMO) > 0, 
+		Preconditions.checkArgument(tamanhoDaFoto.compareTo(TAMANHO_MAXIMO) < 0, 
 				"O tamanho máximo da foto não deve ser maior que 1mb");
 		
 		Usuario usuarioAtualizado = usuarioService.atualizarPor(contaEditada.getLogin(), 

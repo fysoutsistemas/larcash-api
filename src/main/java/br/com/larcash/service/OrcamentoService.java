@@ -2,10 +2,13 @@ package br.com.larcash.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -16,6 +19,7 @@ import br.com.larcash.entity.Orcamento;
 import br.com.larcash.entity.Usuario;
 import br.com.larcash.exception.RegistroNaoEncontradoException;
 import br.com.larcash.repository.OrcamentosRepository;
+import br.com.larcash.repository.projection.TotaisDoOrcamento;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -52,8 +56,19 @@ public class OrcamentoService {
 		
 		this.familiaService.buscarPor(novoOrcamento.getIdDaFamilia());
 		
-		this.repository.inativarTodosPor(novoOrcamento.getIdDaFamilia());
+		Orcamento ultimoOrcamento = repository.buscarUltimoPor(novoOrcamento.getIdDaFamilia());
 		
+		//Precisa validar pois pode ser que esteja sendo criado o primeiro orçamento
+		if (ultimoOrcamento != null) {
+
+			ultimoOrcamento.setDataDeEncerramento(LocalDate.now());
+			
+			this.repository.save(ultimoOrcamento);
+
+			this.repository.inativarTodosPor(novoOrcamento.getIdDaFamilia());
+
+		}
+				
 		Orcamento orcamentoSalvo = repository.save(novoOrcamento);
 		
 		this.categoriaService.vincularCategoriasNo(orcamentoSalvo);
@@ -144,6 +159,15 @@ public class OrcamentoService {
 			@Positive(message = "O id da orçamento deve ser positivo")
 			Integer idDoOrcamento) {
 		this.repository.marcarCategsComoConfiguradasPor(idDoOrcamento);
+	}
+	
+	public List<TotaisDoOrcamento> listarTotalizadoresPor(
+			@NotNull(message = "O id da familia é obrigatório")
+			@Positive(message = "O id da família deve ser positivo")
+			Integer idDaFamilia,
+			@NotNull(message = "A paginação é obrigatória")
+			Pageable paginacao){
+		return repository.listarTotalizadoresPor(idDaFamilia, paginacao);
 	}
 
 }

@@ -20,6 +20,7 @@ import org.springframework.validation.annotation.Validated;
 import com.google.common.base.Preconditions;
 
 import br.com.larcash.config.validation.anotacao.IdValido;
+import br.com.larcash.config.validation.anotacao.MesValido;
 import br.com.larcash.dto.DashboardDeCompras;
 import br.com.larcash.dto.ItemDaListaResumido;
 import br.com.larcash.dto.ItemDoCarrinho;
@@ -37,6 +38,8 @@ import br.com.larcash.enums.StatusDaLista;
 import br.com.larcash.exception.RegistroNaoEncontradoException;
 import br.com.larcash.repository.ItensDaListaRepository;
 import br.com.larcash.repository.ListasDeCompraRepository;
+import br.com.larcash.repository.projection.ResumoDeCompraDoProd;
+import br.com.larcash.repository.projection.TotaisDaCompra;
 import br.com.larcash.repository.projection.TotalDeComprasPorCateg;
 import br.com.larcash.util.CloneUtil;
 import jakarta.validation.Valid;
@@ -159,10 +162,6 @@ public class ListaDeCompraService {
 		ListaDeCompra listaDoItem = itemDaLista.getListaDeCompra();		
 		
 		Preconditions.checkArgument(!listaDoItem.isEncerrada(), "A lista já foi ENCERRADA");
-				
-		//Subtrai do total da compra e estimado o subtotal do item antes de atualiza-lo
-		BigDecimal totalEstimado = listaDoItem.getTotalEstimado().subtract(itemDaLista.getSubtotal());		
-		listaDoItem.setTotalEstimado(totalEstimado);
 
 		listaDoItem.setUsuario(comprador);
 		
@@ -188,15 +187,12 @@ public class ListaDeCompraService {
 		//Recompõe o total da compra e estimado a partir do  
 		//total da compra baseada no item do carrinho
 		BigDecimal totalDaCompra = listaDoItem.getTotalDaCompra().add(subtotal);		
-		listaDoItem.setTotalDaCompra(totalDaCompra);
+		listaDoItem.setTotalDaCompra(totalDaCompra);		
 		
-		totalEstimado = listaDoItem.getTotalEstimado().add(subtotal);
-		listaDoItem.setTotalEstimado(totalEstimado);
-		
-		listaDoItem.setDifDeTotais(totalEstimado.subtract(totalDaCompra));
+		listaDoItem.setDifDeTotais(listaDoItem.getTotalEstimado().subtract(totalDaCompra));
 		
 		this.repository.atualizarTotaisPor(comprador.getIdDaFamilia(), idDaLista, 
-				totalDaCompra, totalEstimado, listaDoItem.getDifDeTotais(), 
+				totalDaCompra, listaDoItem.getTotalEstimado(), listaDoItem.getDifDeTotais(), 
 				loginDoComprador, listaDoItem.getDataDeMovto());
 		
 		this.produtoService.atualizarPrecoPor(comprador.getIdDaFamilia(), 
@@ -229,7 +225,7 @@ public class ListaDeCompraService {
 		
 		BigDecimal totalDaCompra = listaDoItem.getTotalDaCompra().subtract(itemDaLista.getSubtotal());
 		
-		listaDoItem.setDifDeTotais(listaDoItem.getTotalEstimado().subtract(totalDaCompra));			
+		listaDoItem.setDifDeTotais(listaDoItem.getTotalEstimado().add(totalDaCompra));			
 		
 		listaDoItem.setTotalDaCompra(totalDaCompra);
 		
@@ -547,6 +543,30 @@ public class ListaDeCompraService {
 		}
 		
 		return dashboard;
+	}
+	
+	public List<ResumoDeCompraDoProd> listarResumosDeProdsPor(
+			@NotNull(message = "O ano é obrigatório")
+			@Positive(message = "O ano deve ser positivo")
+			Integer ano,
+			@MesValido(nomeDoAtributo = "mês")
+			Integer mes,
+			@IdValido(nomeDoAtributo = "id da família")
+			Integer idDaFamilia,
+			@NotNull(message = "A paginação é obrigatória")
+			Pageable paginacao){
+		return itensRepository.listarResumosPor(ano, mes, idDaFamilia, paginacao);
+	}
+	
+	public TotaisDaCompra buscarTotaisDeComprasPor(
+			@NotNull(message = "O ano é obrigatório")
+			@Positive(message = "O ano deve ser positivo")
+			Integer ano,
+			@MesValido(nomeDoAtributo = "mês")
+			Integer mes,
+			@IdValido(nomeDoAtributo = "id da família")
+			Integer idDaFamilia) {
+		return repository.buscarTotaisPor(ano, mes, idDaFamilia);
 	}
 
 }

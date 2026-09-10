@@ -1,6 +1,10 @@
 package br.com.larcash.entity;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -16,6 +20,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
@@ -38,7 +43,7 @@ public class Orcamento {
 	private Integer id;
 	
 	@NotNull(message = "O limite da categoria é obrigatória")
-	@Positive(message = "O limite não pode ser negativo")
+	@Positive(message = "O limite deve positivo")
 	@Column(name = "limite")
 	private BigDecimal limite;
 	
@@ -57,9 +62,24 @@ public class Orcamento {
 	@Column(name = "fl_categs_config")
 	private Confirmacao flCategoriasConfiguradas;
 	
+	@Column(name = "dt_movto")
+	private LocalDateTime dataDeMovto;
+
+	@Column(name = "dt_criacao")
+	private LocalDate dataDeCriacao;
+
+	@Column(name = "dt_encerramento")
+	private LocalDate dataDeEncerramento;
+	
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "orcamento")
+	private List<Lancamento> lanctos;
+
 	public Orcamento() {
+		this.dataDeCriacao = LocalDate.now();
 		this.status = Status.A;
 		this.flCategoriasConfiguradas = Confirmacao.N;
+		this.dataDeMovto = LocalDateTime.now();
+		this.lanctos = new ArrayList<>();
 	}
 	
 	@JsonIgnore
