@@ -109,6 +109,11 @@ public class ListaDeCompra {
 	@Column(name = "fl_recorrente")
 	private Confirmacao flRecorrente;
 	
+	@Enumerated(value = EnumType.STRING)
+	@NotNull(message = "O indicador de notificação da lista é obrigatório")
+	@Column(name = "fl_notificada")
+	private Confirmacao flNotificada;
+	
 	@OneToMany(mappedBy = "listaDeCompra", cascade = CascadeType.ALL, orphanRemoval = true)
 	@OrderBy("ordem ASC")
 	private List<ItemDaLista> itens;
@@ -121,6 +126,7 @@ public class ListaDeCompra {
 		this.dataDeMovto = LocalDateTime.now();
 		this.flAtivo = Confirmacao.S;
 		this.flRecorrente = Confirmacao.N;
+		this.flNotificada = Confirmacao.N;
 		this.itens = new ArrayList<>();
 	}
 	
@@ -179,6 +185,12 @@ public class ListaDeCompra {
 	@Transient
 	public boolean isRecorrente() {
 		return getFlRecorrente() == Confirmacao.S;
+	}
+	
+	@JsonIgnore
+	@Transient
+	public boolean isNotificada() {
+		return getFlNotificada() == Confirmacao.S;
 	}
 	
 	@Transient

@@ -3,6 +3,7 @@ package br.com.larcash.dto;
 import br.com.larcash.enums.Confirmacao;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Data;
 
 @Data
@@ -24,5 +25,9 @@ public class ResumoDaContaDeUsuario {
 	private Confirmacao flChefeDaFamilia;
 	
 	public String foto;
+	
+	@NotNull(message = "A qtde de membros é obrigatória")
+	@PositiveOrZero(message = "A qtde de membros não pode ser negativa")
+	private Integer qtdeDeMembros;
 	
 }

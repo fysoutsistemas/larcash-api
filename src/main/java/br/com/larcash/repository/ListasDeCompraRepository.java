@@ -85,6 +85,13 @@ public interface ListasDeCompraRepository extends JpaRepository<ListaDeCompra, I
 	@Modifying
 	@Query(value = 
 			"UPDATE ListaDeCompra lc "
+			+ "SET lc.flNotificada = :flNotificada "
+			+ "WHERE lc.id = :idDaLista ")
+	public void atualizarStatusDeNotifPor(Integer idDaLista, Confirmacao flNotificada);
+	
+	@Modifying
+	@Query(value = 
+			"UPDATE ListaDeCompra lc "
 			+ "SET lc.status = br.com.larcash.enums.StatusDaLista.NOVA, "
 			+ "    lc.totalDaCompra = 0.0, lc.comprador.login = null, "
 			+ "    lc.difDeTotais = lc.totalEstimado "

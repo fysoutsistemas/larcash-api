@@ -32,7 +32,7 @@ public class AuthService {
 			String login, 
 			@NotBlank(message = "A senha é obrigatória")
 			String senha) {
-		
+		//TODO: Adicionar coluna para a data do login
 		Usuario usuarioEncontrado = repository.buscarPorLogin(login);
 		
 		String senhaCifrada = Hashing.sha256().hashString(senha, 

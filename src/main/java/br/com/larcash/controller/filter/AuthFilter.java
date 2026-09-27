@@ -36,6 +36,8 @@ public class AuthFilter extends OncePerRequestFilter{
 			             ENDPOINT_CONVITE = "/contas-usuarios/registrar",
 			             ENDPOINT_CATEGORIA = "/categorias",
 			             ENDPOINT_ORCAMENTO = "/orcamentos",
+			             ENDPOINT_OTP = "/validacoes-otp",
+			             ENDPOINT_RESET_SENHA = "/reset-senha",
 			             METODO_POST = "POST",
 			             METODO_PUT = "PUT";
 	@Autowired
@@ -66,7 +68,9 @@ public class AuthFilter extends OncePerRequestFilter{
 			
 			if (!ENDPOINT_REGISTRO_CONTAS.equals(pathDoEndpoint)
 					&& !ENDPOINT_CONVITE.equals(pathDoEndpoint)
-					&& !ENDPOINT_LOGIN.equals(pathDoEndpoint) 
+					&& !ENDPOINT_LOGIN.equals(pathDoEndpoint)					
+					&& !pathDoEndpoint.startsWith(ENDPOINT_OTP)
+					&& !pathDoEndpoint.startsWith(ENDPOINT_RESET_SENHA)
 					&& !pathDoEndpoint.startsWith(ENDPOINT_STATUS_API)) {
 
 				String authHeader = requestCache.getHeader("Authorization");

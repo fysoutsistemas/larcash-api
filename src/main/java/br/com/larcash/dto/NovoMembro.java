@@ -22,4 +22,8 @@ public class NovoMembro {
 	@NotBlank(message = "O telefone é obrigatório")
 	@Size(max = 20, message = "O telefone não deve conter mais de 20 caracteres")
 	private String telefone;
+	
+	@NotBlank(message = "O código OTP é obrigatório")
+	private String codigoOTP;
+
 }

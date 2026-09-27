@@ -235,4 +235,22 @@ public class ListaDeCompraController {
 		
 	}
 	
+	@PostMapping("{id-lista}/usuario/{login-notificado}/notificar")
+	@Transactional
+	public ResponseEntity<?> notificar(
+			@RequestHeader("Authorization") 
+			String authHeader,
+			@PathVariable("id-lista")
+			Integer idDaLista,
+			@PathVariable("login-notificado")
+			String loginNotificado){
+		
+		String loginNotificador = tokenUtil.extractLoginDo(authHeader);
+		
+		this.service.notificarPor(idDaLista, loginNotificado, loginNotificador);
+		
+		return ResponseEntity.ok().build();
+		
+	}
+	
 }

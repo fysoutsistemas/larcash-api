@@ -42,6 +42,7 @@ import br.com.larcash.repository.projection.ResumoDeCompraDoProd;
 import br.com.larcash.repository.projection.TotaisDaCompra;
 import br.com.larcash.repository.projection.TotalDeComprasPorCateg;
 import br.com.larcash.util.CloneUtil;
+import br.com.larcash.util.CurrencyUtil;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -65,6 +66,12 @@ public class ListaDeCompraService {
 	
 	@Autowired
 	private LanctoService lanctoService;
+	
+	@Autowired
+	private NotificacaoService notificacaoService;
+	
+	@Autowired
+	private CurrencyUtil currencyUtil;
 	
 	@Autowired
 	private CloneUtil cloneUtil;
@@ -567,6 +574,49 @@ public class ListaDeCompraService {
 			@IdValido(nomeDoAtributo = "id da família")
 			Integer idDaFamilia) {
 		return repository.buscarTotaisPor(ano, mes, idDaFamilia);
+	}
+	
+	public void notificarPor(
+			@IdValido(nomeDoAtributo = "id da lista")
+			Integer idDaLista,
+			@NotBlank(message = "O login notificado é obrigatório")
+			String loginNotificado,
+			String loginNotificador) {
+		
+		Usuario usuarioNotificado = usuarioService.buscarPorLogin(loginNotificado);
+		
+		Usuario usuarioNotificador = usuarioService.buscarPorLogin(loginNotificador);
+		
+		boolean isDaMesmaFamilia = usuarioNotificado.getIdDaFamilia() == usuarioNotificador.getIdDaFamilia(); 
+		
+		Preconditions.checkArgument(isDaMesmaFamilia, "O usuário notificado não pertence a mesma família");
+		
+		ListaDeCompra listaEncontrada = buscarPor(usuarioNotificado
+				.getIdDaFamilia(), idDaLista);
+		
+		Preconditions.checkArgument(listaEncontrada.isNova(), 
+				"Somente novas listas podem ser notificadas");
+		
+		Preconditions.checkArgument(!listaEncontrada.isNotificada(), 
+				"A lista já foi notificada para um familiar!");
+		
+		StringBuilder msg = new StringBuilder();
+		msg.append("Olá! 👋 Sua lista de compras está prontinha no Larca$h ");
+		msg.append("e esperando por você para ir ao mercado. 🛒✨\n");
+		msg.append("Aqui está o resumo:\n\n");
+		msg.append("📝 Lista: *").append(listaEncontrada.getNome()).append("*\n");
+		msg.append("📦 Quantidade de itens: *").append(listaEncontrada.getQtde()).append("*\n");
+		msg.append("💰 Total estimado: *");
+		msg.append(currencyUtil.toBRL(listaEncontrada.getTotalEstimado())).append("*\n\n");
+		msg.append("Tudo organizado para você economizar tempo ");
+		msg.append("e ter mais controle. Boas compras! 🚀\n\n");
+		msg.append("📱 Para abrir a lista direto no app, clique aqui: ");
+		msg.append("https://larcash.com.br");
+		
+		this.notificacaoService.enviarMsgPor(usuarioNotificado.getTelefone(), msg.toString());
+		
+		this.repository.atualizarStatusDeNotifPor(idDaLista, Confirmacao.S);
+
 	}
 
 }

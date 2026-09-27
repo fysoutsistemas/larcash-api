@@ -1,6 +1,7 @@
 package br.com.larcash.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -28,5 +29,12 @@ public interface UsuariosRepository extends JpaRepository<Usuario, String> {
 			+ "FROM Usuario u "
 			+ "WHERE u.telefone = :telefone ")
 	public Integer contarUsuariosPor(String telefone);
+	
+	@Modifying
+	@Query(value = 
+			"UPDATE Usuario u "
+			+ "SET u.senha = :senhaCriptografada "
+			+ "WHERE u.login = :login ")
+	public void atualizarSenhaPor(String login, String senhaCriptografada);
 
 }

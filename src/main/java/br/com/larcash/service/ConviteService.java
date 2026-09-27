@@ -39,6 +39,9 @@ public class ConviteService {
 	@Autowired
 	private UsuarioService usuarioService;
 	
+	@Autowired
+	private ValidacaoOTPService validacaoService;
+	
 	@Value("${validade-em-horas}")
 	private Integer validadeEmHoras;
 	
@@ -111,6 +114,9 @@ public class ConviteService {
 	    
 	    Preconditions.checkArgument(!conviteEncontrado.isConfirmado(), 
 	    		"O token do convite já foi utilizado");
+
+	    this.validacaoService.validarCodigoPor(novoMembro
+				.getTelefone(), novoMembro.getCodigoOTP());
 
 	    Usuario novoUsuario = new Usuario();
 	    novoUsuario.setLogin(novoMembro.getLogin());

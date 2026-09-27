@@ -1,5 +1,6 @@
 package br.com.larcash.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,9 +9,12 @@ import org.springframework.validation.annotation.Validated;
 
 import com.google.common.base.Preconditions;
 
+import br.com.larcash.config.validation.anotacao.IdValido;
 import br.com.larcash.entity.Familia;
+import br.com.larcash.entity.Usuario;
 import br.com.larcash.exception.RegistroNaoEncontradoException;
 import br.com.larcash.repository.FamiliasRepository;
+import br.com.larcash.repository.projection.MembroDaFamilia;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -71,5 +75,17 @@ public class FamiliaService {
 		return familiaEncontrada;
 		
 	}
+
+	public List<MembroDaFamilia> listarMembrosPor(
+			@NotNull(message = "O usuário não pode ser nulo")
+			Usuario usuario){
+		return repository.listarMembrosPor(usuario.getIdDaFamilia(), usuario.getLogin());
+	}
 	
+	public Integer contarMembrosPor(
+			@IdValido(nomeDoAtributo = "id da família")
+			Integer idDaFamilia) {
+		return repository.contarMembrosPor(idDaFamilia);
+	}
+
 }

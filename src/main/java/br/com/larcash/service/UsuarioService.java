@@ -14,6 +14,7 @@ import com.google.common.hash.Hashing;
 import br.com.larcash.entity.Usuario;
 import br.com.larcash.exception.RegistroNaoEncontradoException;
 import br.com.larcash.repository.UsuariosRepository;
+import br.com.larcash.util.PhoneUtil;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -27,6 +28,9 @@ public class UsuarioService {
 	
 	@Autowired
 	private FamiliaService familiaService;
+	
+	@Autowired
+	private PhoneUtil phoneUtil;
 	
 	public Usuario inserir(
 			@Valid
@@ -50,9 +54,8 @@ public class UsuarioService {
 		novoUsuario.setSenha(senhaCifrada);
 		
 		//Removendo a mascara do telefone
-		String telefoneSemMascara = novoUsuario.getTelefone()
-				.replace("(", "").replace(")", "")
-				.replace(" ", "").replace("-", "");
+		String telefoneSemMascara = phoneUtil.removerMascaraDo(
+				novoUsuario.getTelefone());
 		
 		Integer qtdeDeOcorrencias = repository.contarUsuariosPor(telefoneSemMascara);
 		
@@ -100,6 +103,29 @@ public class UsuarioService {
 
 		return this.repository.save(usuarioEncontrado);
 
+	}
+	
+	public void atualizarSenhaPor(
+			@NotBlank(message = "O login é obrigatório")			
+			String login, 
+			@NotBlank(message = "A senha é obrigatória")
+			String senhaPlana) {
+		
+		//Se não encontrar nenhum usuario vinculado ao login 
+		//dispara uma exceção indicando registro não encontrado
+		this.buscarPorLogin(login);
+		
+		String senhaCifrada = Hashing.sha256().hashString(
+				senhaPlana, StandardCharsets.UTF_8).toString();
+		
+		this.repository.atualizarSenhaPor(login, senhaCifrada);
+
+	}
+	
+	public boolean isExiste(
+			@NotBlank(message = "O login é obrigatório")
+			String login) {
+		return repository.buscarPorLogin(login) != null;
 	}
 	
 	public Usuario buscarPorLogin(

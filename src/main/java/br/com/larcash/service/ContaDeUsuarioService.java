@@ -40,6 +40,9 @@ public class ContaDeUsuarioService {
 	@Autowired
 	private CategoriaService categoriaService;
 	
+	@Autowired
+	private ValidacaoOTPService validacaoService;
+	
 	@Value("${validade-em-horas}")
 	private Integer validadeEmHoras;
 	
@@ -47,25 +50,28 @@ public class ContaDeUsuarioService {
 	private String urlDaView;
 	
 	@Autowired
-	private FileUtil fileUtil;
+	private FileUtil fileUtil;	
 	
 	@Transactional
 	public void criar(
 			@Valid
 			@NotNull(message = "A nova conta não pode ser nula")
 			NovaContaDeUsuario novaConta) {
-		
+		//TODO: Adicionar coluna para data de criação
+		this.validacaoService.validarCodigoPor(novaConta
+				.getTelefone(), novaConta.getCodigoOTP());
+
 		Familia novaFamilia = new Familia();
 		novaFamilia.setNome(novaConta.getNomeDaFamilia());
-		
+
 		Familia familiaSalva = familiaService.inserir(novaFamilia);
-		
+
 		Orcamento novoOrcamento = new Orcamento();		
 		novoOrcamento.setLimite(novaConta.getOrcamentoMensal());
 		novoOrcamento.setFamilia(familiaSalva);
 
 		Orcamento orcamentoSalvo = orcamentoService.inserir(novoOrcamento);
-		
+
 		this.categoriaService.vincularCategoriasNo(orcamentoSalvo);
 
 		Usuario novoUsuario = new Usuario();
@@ -111,6 +117,8 @@ public class ContaDeUsuarioService {
 		
 		Orcamento orcamentoEncontrado = orcamentoService.buscarUltimoPor(login);
 		
+		Integer qtdeDeMembros = familiaService.contarMembrosPor(usuarioEncontrado.getIdDaFamilia());
+		
 		ResumoDaContaDeUsuario resumo = new ResumoDaContaDeUsuario();
 		
 		resumo.setLogin(usuarioEncontrado.getLogin());
@@ -119,6 +127,7 @@ public class ContaDeUsuarioService {
 		resumo.setFlCategoriasConfiguradas(orcamentoEncontrado.getFlCategoriasConfiguradas());
 		resumo.setFlChefeDaFamilia(usuarioEncontrado.getFlChefeDeFamilia());
 		resumo.setFoto(usuarioEncontrado.getFoto());
+		resumo.setQtdeDeMembros(qtdeDeMembros);		
 		
 		return resumo;
 
