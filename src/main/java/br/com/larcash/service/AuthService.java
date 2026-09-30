@@ -53,6 +53,8 @@ public class AuthService {
 		
 		usuarioEncontrado.setUltimoToken(tokenGerado);
 		
+		usuarioEncontrado.setDataDoUltimoLogin(LocalDateTime.now());
+		
 		this.repository.save(usuarioEncontrado);
 		
 		return tokenGerado;
