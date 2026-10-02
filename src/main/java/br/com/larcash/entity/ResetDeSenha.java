@@ -52,10 +52,21 @@ public class ResetDeSenha {
 	@NotNull(message = "O indicador de ativação é obrigatório")
 	@Column(name = "fl_resetada")
 	private Confirmacao flResetada;
+	
+	@NotBlank(message = "O telefone é obrigatório")
+	@Size(max = 20, message = "O telefone não deve conter mais de 20 caracteres")
+	@Column(name = "telefone")
+	private String telefone;
 
 	public ResetDeSenha() {
 		this.dataDeMovto = LocalDateTime.now();
 		this.flResetada = Confirmacao.N;
+	}
+	
+	@JsonIgnore
+	@Transient
+	public String anonimizarTelefone() {		
+		return "+55 (••) •••••-" + telefone.substring(telefone.length() - 4);
 	}
 
 	@JsonIgnore

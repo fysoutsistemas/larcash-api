@@ -1,5 +1,6 @@
 package br.com.larcash.controller;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.json.JSONObject;
@@ -32,10 +33,14 @@ public class ResetDeSenhaController {
 			@PathVariable("login")
 			String login){		
 
-		this.service.gerarCodigoPor(login);
-
-		return ResponseEntity.ok().build();
+		ResetDeSenha reset = service.gerarCodigoPor(login);
 		
+		Map<String, Object> response = new HashMap<String, Object>();
+		
+		response.put("telefone", reset.anonimizarTelefone());		
+
+		return ResponseEntity.ok(response);
+
 	}
 
 	@PostMapping("/verificacao")

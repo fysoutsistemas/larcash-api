@@ -88,11 +88,15 @@ public class ResetDeSenhaService {
 			
 		}
 		
+		reset.setTelefone(usuarioEncontrado.getTelefone());
+		
 		LocalDateTime validade = AGORA.plusMinutes(VALIDADE_EM_MINUTOS); 
 
 		reset.setValidoAte(validade);
 		
 		reset.setProximoEnvio(AGORA.plusSeconds(PROX_ENVIO_EM_SEGS));
+		
+		reset.setFlResetada(Confirmacao.N);
 
 		reset = repository.save(reset);
 		
