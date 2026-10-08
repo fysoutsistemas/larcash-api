@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 
 import br.com.larcash.dto.ContaDeUsuarioEditada;
 import br.com.larcash.dto.NovaContaDeUsuario;
+import br.com.larcash.dto.ResumoDaAssinatura;
 import br.com.larcash.dto.ResumoDaContaDeUsuario;
 import br.com.larcash.entity.Familia;
 import br.com.larcash.entity.Orcamento;
@@ -41,6 +42,9 @@ public class ContaDeUsuarioService {
 	private CategoriaService categoriaService;
 	
 	@Autowired
+	private AssinaturaService assinaturaService;
+	
+	@Autowired
 	private ValidacaoOTPService validacaoService;
 	
 	@Value("${validade-em-horas}")
@@ -57,7 +61,7 @@ public class ContaDeUsuarioService {
 			@Valid
 			@NotNull(message = "A nova conta não pode ser nula")
 			NovaContaDeUsuario novaConta) {
-		//TODO: Adicionar coluna para data de criação
+
 		this.validacaoService.validarCodigoPor(novaConta
 				.getTelefone(), novaConta.getCodigoOTP());
 
@@ -83,7 +87,9 @@ public class ContaDeUsuarioService {
 		novoUsuario.setFlAlteraOrcamento(Confirmacao.S);
 		novoUsuario.setTelefone(novaConta.getTelefone());
 
-		this.usuarioService.inserir(novoUsuario);			
+		this.usuarioService.inserir(novoUsuario);
+		
+		this.assinaturaService.criarTrialPara(familiaSalva);
 
 	}
 		
@@ -127,8 +133,13 @@ public class ContaDeUsuarioService {
 		resumo.setFlCategoriasConfiguradas(orcamentoEncontrado.getFlCategoriasConfiguradas());
 		resumo.setFlChefeDaFamilia(usuarioEncontrado.getFlChefeDeFamilia());
 		resumo.setFoto(usuarioEncontrado.getFoto());
-		resumo.setQtdeDeMembros(qtdeDeMembros);		
+		resumo.setQtdeDeMembros(qtdeDeMembros);
 		
+		ResumoDaAssinatura resumoDaAssinatura = assinaturaService.buscarAssinaturaPor(
+				usuarioEncontrado.getIdDaFamilia()); 
+		
+		resumo.setResumoDaAssinatura(resumoDaAssinatura);
+
 		return resumo;
 
 	}

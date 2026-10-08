@@ -38,4 +38,21 @@ public class AuthController {
 
 	}
 	
+	@Transactional
+	@PostMapping("/admin")
+	public ResponseEntity<?> logarAdmin(
+			@RequestBody 
+			SolicitacaoDeToken solicitacao){
+		
+		String tokenGerado = service.autenticarAdmin(
+				solicitacao.getLogin(), solicitacao.getSenha());
+		
+		Map<String, Object> response = new HashMap<String, Object>();
+		
+		response.put("token", tokenGerado);
+		
+		return ResponseEntity.ok(response);
+		
+	}
+	
 }

@@ -30,4 +30,7 @@ public class ResumoDaContaDeUsuario {
 	@PositiveOrZero(message = "A qtde de membros não pode ser negativa")
 	private Integer qtdeDeMembros;
 	
+	@NotNull(message = "O resumo da assinatura é obrigatório")
+	private ResumoDaAssinatura resumoDaAssinatura;
+	
 }

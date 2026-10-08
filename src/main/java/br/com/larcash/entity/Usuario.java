@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import br.com.larcash.enums.Confirmacao;
-import br.com.larcash.enums.TipoDeConta;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -79,16 +78,10 @@ public class Usuario {
 	@Column(name = "dt_ultimo_login")
 	private LocalDateTime dataDoUltimoLogin;
 	
-	@Enumerated(value = EnumType.STRING)
-	@NotNull(message = "O tipo de conta é obrigatório")
-	@Column(name = "tipo_conta")
-	private TipoDeConta tipoDeConta;
-	
 	@Column(name = "acesso_ate")
 	private LocalDateTime acessoAte;
 	
 	public Usuario() {
-		this.tipoDeConta = TipoDeConta.TRIAL;
 		//A validade é de 7 dias
 		this.acessoAte = LocalDateTime.now().plusDays(7);
 		this.dataDeCriacao = LocalDateTime.now();		

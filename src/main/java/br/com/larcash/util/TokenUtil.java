@@ -33,7 +33,7 @@ public class TokenUtil {
 		String dadosDoToken[] = new String(Base64.getDecoder()
 	    		.decode(token.getBytes())).split(",");
 	    
-	    Preconditions.checkArgument(dadosDoToken.length == 3, "Token inválido");
+	    Preconditions.checkArgument(dadosDoToken.length == 4, "Token inválido");
 	    
 	    return dadosDoToken;
 		

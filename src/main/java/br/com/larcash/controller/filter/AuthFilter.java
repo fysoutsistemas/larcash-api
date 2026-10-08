@@ -15,12 +15,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.google.common.base.Preconditions;
 
+import br.com.larcash.entity.Administrador;
 import br.com.larcash.entity.Usuario;
 import br.com.larcash.exception.AutorizacaoException;
 import br.com.larcash.exception.ConverterException;
 import br.com.larcash.exception.ErroDaApi;
 import br.com.larcash.exception.ErrorConverter;
 import br.com.larcash.exception.RegistroNaoEncontradoException;
+import br.com.larcash.service.AdminService;
 import br.com.larcash.service.UsuarioService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -31,6 +33,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public class AuthFilter extends OncePerRequestFilter{
 
 	private final String ENDPOINT_LOGIN = "/auth",
+						 ENDPOINT_LOGIN_ADMIN = "/auth/admin",
 			             ENDPOINT_STATUS_API = "/actuator",
 			             ENDPOINT_REGISTRO_CONTAS = "/convites/registrar",
 			             ENDPOINT_CONVITE = "/contas-usuarios/registrar",
@@ -38,10 +41,14 @@ public class AuthFilter extends OncePerRequestFilter{
 			             ENDPOINT_ORCAMENTO = "/orcamentos",
 			             ENDPOINT_OTP = "/validacoes-otp",
 			             ENDPOINT_RESET_SENHA = "/reset-senha",
+			             PATH_ASSINATURA = "assinatura",
 			             METODO_POST = "POST",
 			             METODO_PUT = "PUT";
 	@Autowired
 	private UsuarioService usuarioService;
+	
+	@Autowired
+	private AdminService adminService;
 	
 	@Autowired	
 	private ErrorConverter errorConverter;
@@ -66,58 +73,44 @@ public class AuthFilter extends OncePerRequestFilter{
 			
 			String metodo = requestCache.getMethod();
 			
-			if (!ENDPOINT_REGISTRO_CONTAS.equals(pathDoEndpoint)
-					&& !ENDPOINT_CONVITE.equals(pathDoEndpoint)
-					&& !ENDPOINT_LOGIN.equals(pathDoEndpoint)					
-					&& !pathDoEndpoint.startsWith(ENDPOINT_OTP)
-					&& !pathDoEndpoint.startsWith(ENDPOINT_RESET_SENHA)
-					&& !pathDoEndpoint.startsWith(ENDPOINT_STATUS_API)) {
-
-				String authHeader = requestCache.getHeader("Authorization");
-				
-				if (authHeader != null && authHeader.startsWith("Bearer ")) {
-					
-				    String token = authHeader.substring(7);
-				    
-				    String dadosDoToken[] = new String(Base64.getDecoder()
-				    		.decode(token.getBytes())).split(",");
-				    
-				    Preconditions.checkArgument(dadosDoToken.length == 3, "Token inválido");
-				    
-				    String login = dadosDoToken[0];
-				    
-				    Usuario usuarioEncontrado = usuarioService.buscarPorLogin(login);
-				    
-				    Preconditions.checkArgument(token.equals(usuarioEncontrado
-				    		.getUltimoToken()), "Token inválido");
-				    
-				    Long validadeInMillis = Long.valueOf(dadosDoToken[1]);
-				    
-				    Instant instant = Instant.ofEpochMilli(validadeInMillis);
-				    
-				    LocalDateTime validade = LocalDateTime.ofInstant(instant, 
-				    		ZoneId.systemDefault());
-				    
-				    Preconditions.checkArgument(validade.isAfter(LocalDateTime.now()), 
-				    		"Token fora do prazo de validade");
-				    
-				    if (pathDoEndpoint.startsWith(ENDPOINT_CATEGORIA)
-				    		|| pathDoEndpoint.startsWith(ENDPOINT_ORCAMENTO)) {
-
-				    	if (METODO_POST.equalsIgnoreCase(metodo) 
-				    			|| METODO_PUT.equalsIgnoreCase(metodo)) {
-				    		Preconditions.checkArgument(usuarioEncontrado.isChefeDeFamilia(), 
-				    				"O login não possui nível de acesso ao recurso de destino ");
-				    	}
-
-				    }
-
-				}else {
-					throw new AutorizacaoException("Token inexistente ou inválido");
-				}
-				
-			}
+			String authHeader = requestCache.getHeader("Authorization");
 			
+			if (pathDoEndpoint.contains(PATH_ASSINATURA)) {
+				this.validarTokenPresenteNo(authHeader, true);
+			}else {
+				
+				if (!ENDPOINT_REGISTRO_CONTAS.equals(pathDoEndpoint)
+						&& !ENDPOINT_CONVITE.equals(pathDoEndpoint)
+						&& !ENDPOINT_LOGIN.equals(pathDoEndpoint)
+						&& !ENDPOINT_LOGIN_ADMIN.equals(pathDoEndpoint)
+						&& !pathDoEndpoint.startsWith(ENDPOINT_OTP)
+						&& !pathDoEndpoint.startsWith(ENDPOINT_RESET_SENHA)
+						&& !pathDoEndpoint.startsWith(ENDPOINT_STATUS_API)) {
+
+					String tokenValido = validarTokenPresenteNo(authHeader, false);
+
+					if (pathDoEndpoint.startsWith(ENDPOINT_CATEGORIA)
+							|| pathDoEndpoint.startsWith(ENDPOINT_ORCAMENTO)) {
+						
+						String login = new String(Base64.getDecoder()
+								.decode(tokenValido.getBytes())).split(",")[0];
+
+						Usuario usuarioEncontrado = usuarioService.buscarPorLogin(login);
+
+						if (METODO_POST.equalsIgnoreCase(metodo) 
+								|| METODO_PUT.equalsIgnoreCase(metodo)) {
+
+							Preconditions.checkArgument(usuarioEncontrado.isChefeDeFamilia(), 
+									"O login não possui nível de acesso ao recurso de destino ");
+
+						}
+
+					}																		
+
+				}
+
+			}
+
 			filterChain.doFilter(requestCache, response);
 			
 		}catch (AutorizacaoException ae) {
@@ -149,6 +142,67 @@ public class AuthFilter extends OncePerRequestFilter{
 			this.retornarErroCom(HttpStatus.UNAUTHORIZED, response, errorBody);
 
 		}
+
+	}
+	
+	private String validarTokenPresenteNo(String header, boolean isAdminToken) {			
+		
+		if (header != null && header.startsWith("Bearer ")) {
+			
+			String token = header.substring(7);
+			
+			String dadosDoToken[] = new String(Base64.getDecoder()
+					.decode(token.getBytes())).split(",");
+			
+			int qtdeDeDados = isAdminToken ? 2 : 4;
+			
+			Preconditions.checkArgument(dadosDoToken.length == qtdeDeDados, "Token inválido");
+
+			String login = dadosDoToken[0];
+			
+			String ultimoToken = null; 
+					
+			if (isAdminToken) {
+				Administrador adminEncontrado = adminService.buscarPorLogin(login);				
+				ultimoToken = adminEncontrado.getUltimoToken();				
+			}else{
+				Usuario usuarioEncontrado = usuarioService.buscarPorLogin(login);				
+				ultimoToken = usuarioEncontrado.getUltimoToken();
+			}
+			
+			Preconditions.checkArgument(token.equals(ultimoToken), "Token inválido");
+
+			Long validadeInMillis = Long.valueOf(dadosDoToken[1]);
+			
+			Instant instant = Instant.ofEpochMilli(validadeInMillis);
+
+			LocalDateTime validade = LocalDateTime.ofInstant(instant, 
+					ZoneId.systemDefault());
+
+			Preconditions.checkArgument(validade.isAfter(LocalDateTime.now()), 
+					"Token fora do prazo de validade");
+			
+			//Se o token não for de administrador é preciso validar 
+			//se a assinatura não está expirada
+			if (!isAdminToken) {
+				
+				validadeInMillis = Long.valueOf(dadosDoToken[3]);
+				
+				instant = Instant.ofEpochMilli(validadeInMillis);
+				
+				validade = LocalDateTime.ofInstant(instant, 
+						ZoneId.systemDefault());
+				
+				Preconditions.checkArgument(validade.isAfter(LocalDateTime.now()), 
+						"A assinatura expirou");
+				
+			}
+
+			return token;
+
+		}else {
+			throw new AutorizacaoException("Token inexistente ou inválido");
+		}		
 
 	}
 	
